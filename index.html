@@ -188,12 +188,13 @@ header button{font-size:13px;padding:6px 12px}
 .box td.n{text-align:right;font-family:'Abril Fatface',serif}
 .box tr.best td{color:var(--gold2)}
 .box.wide{max-width:1180px}
-.sicons{position:absolute;right:3px;top:28px;display:flex;flex-direction:column;gap:2px;z-index:4}
+.sicons{position:absolute;left:0;right:0;top:92px;display:flex;flex-direction:row;justify-content:center;gap:3px;z-index:4;pointer-events:none}
+.special .sicons{top:88px}
 .sicon{display:inline-block;width:17px;height:17px;border-radius:50%;background:#fff6e4;box-shadow:0 0 0 1.5px #3a1028,0 1px 3px rgba(0,0,0,.4);overflow:hidden}
 .sicon svg{width:100%;height:100%;display:block}
 .sicon.inl{vertical-align:-3px;margin-right:4px;box-shadow:0 0 0 1px #3a1028}
-.perso .sicons{top:24px}
-.mini .sicons{top:20px}.mini .sicon{width:12px;height:12px}
+.perso .sicons{top:92px}
+.mini .sicons{top:63px}.mini.special .sicons{top:67px}.mini .sicon{width:12px;height:12px}
 .gtabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
 .gtabs button{font-size:13px;padding:6px 12px;background:rgba(255,255,255,.07);color:var(--cream);box-shadow:0 0 0 1.5px rgba(242,193,78,.5)}
 .gtabs button.on{color:#3a1028;background:linear-gradient(180deg,#fff3bf,#f2c14e 50%,#d39a2b);box-shadow:0 0 0 2px #a8741a}
@@ -228,6 +229,7 @@ header button{font-size:13px;padding:6px 12px}
   .special .art{top:26px;height:60px}
   .special .ne{top:92px;font-size:9px}
   .num .suit{display:none}
+  .sicons,.perso .sicons,.special .sicons{top:71px}
   .cover h1{font-size:54px}
 }
 </style>
