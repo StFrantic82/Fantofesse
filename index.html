@@ -323,7 +323,7 @@ const PERSOS=[
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Jouée : échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'Agent du port',power:'Joué : refile 2 Catamarans de ta collection.',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet (pour l’instant).',quote:'Mes statuettes ! Mon restaurant !'},
-  {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Peintre',power:'Je suis moi. Aucun effet.',quote:'Je suis moi.'},
+  {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'Copine',power:'Collection : +3 avec Rodrigo, +2 avec la statuette préférée.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Flic infiltré',power:'Joué : prends 1 carte dans une collection adverse.',quote:'Mon pays est plat. C’est ce que j’aime.'},
   {pid:'secretaire',value:1,name:'La secrétaire',short:'Secrétaire',power:'Collection : +2 PV avec Fantofesse.',quote:'C’est quoi, déjà, le mot de passe ?'}
@@ -565,6 +565,8 @@ function pts(c){
   if(c.kind==='num'){
     if(c.type==='perso') return c.pid==='fanto'?-5:0;
     if(c.type==='totem') return 1;
+    if(c.named) return -2;
+    if(c.type==='tab') return 0;
     const tier=c.value===10?0:c.value>=7?1:c.value>=4?2:3;
     return tier*TYPES[c.type].sign;
   }
@@ -1009,6 +1011,7 @@ function collectionBonus(piles){
   if(has(pidIs('copine'))){if(has(pidIs('rodrigo')))b+=3;if(has(c=>isS(c)&&c.named))b+=2;}
   if(has(pidIs('joanne'))&&has(c=>c.sid==='camion'))b+=3;
   if(has(pidIs('secretaire'))&&has(pidIs('fanto')))b+=2;
+  if(has(pidIs('peintre')))b+=piles.filter(isT).length;
   return b;
 }
 function scoreOf(i){
@@ -1226,8 +1229,10 @@ function rulesHTML(){
   <li>Chaque manche : 5 cartes coupées au Montage (scénario troué), puis 3 cartes passées au voisin.</li></ul>
   <h3>Les cartes spéciales</h3><ul>${SPECIALS.map(s=>`<li><b>${s.name}</b> : ${s.effect}</li>`).join('')}</ul>
   <h3>Points : plus une carte est forte, moins elle rapporte</h3><ul>
-  <li>Tableaux et Statuettes : +3 (1 à 3), +2 (4 à 6), +1 (7 à 9), 0 (10). Catamarans et Voitures : −3, −2, −1, 0 selon les mêmes paliers.</li>
-  <li>Totem magique +1, Camion ! −5, Fantofesse −5, autres Personnages 0.</li><li>Bonus de collection : la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (le Camion ne coûte que −2), la secrétaire (+2 avec Fantofesse).</li></ul>
+  <li>Statuettes : +3 (1 à 3), +2 (4 à 6), +1 (7 à 9), 0 (10). Catamarans et Voitures : −3, −2, −1, 0 selon les mêmes paliers.</li>
+  <li>Tableaux : 0 PV. Ils ne valent que grâce au Peintre (+1 PV par Tableau dans sa collection) et à la Scène Vernissage.</li>
+  <li>Les 4 cartes nommées (tableau flamand, statuette préférée, catamaran géant, 6-roues de Marrakech) : −2 PV. Elles ne paient que dans leur Scène culte.</li>
+  <li>Totem magique +1, Camion ! −5, Fantofesse −5, autres Personnages 0.</li><li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (le Camion ne coûte que −2), la secrétaire (+2 avec Fantofesse).</li></ul>
   <h3>Scènes cultes : victoire immédiate de la manche</h3>
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : <b>+${SCENE_PTS}</b> pour son auteur, 0 pour les autres.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td></tr>`).join('')}</table>
