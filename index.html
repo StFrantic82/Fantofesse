@@ -291,6 +291,20 @@ body::before{opacity:.18}
 .pv.pos path{fill:#fff3b0;stroke:#8a5a00;stroke-width:1.4;stroke-linejoin:round}.pv.pos span{color:#5a3a00}
 .pv.neg path{fill:#2a1a24;stroke:#2a1a24;stroke-width:1.4;stroke-linejoin:round}.pv.neg span{color:#fff}
 .mini .pv{width:22px;height:22px;top:2px;right:3px}.mini .pv span{font-size:10px;margin-top:2px}
+
+/* ---------- Titres : une ligne, encadré ornementé ---------- */
+.ribbon{top:107px;left:7px;right:7px;min-height:0;height:21px;padding:0 10px;white-space:nowrap;overflow:hidden;
+  font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:calc(var(--fs) * 1px);letter-spacing:0;
+  color:var(--rib);background:#fffaf0;border-radius:4px;clip-path:none;
+  box-shadow:0 0 0 1.5px var(--rib),inset 0 0 0 2px #fffaf0,inset 0 0 0 3px #e2b649}
+.ribbon::before,.ribbon::after{content:"";position:absolute;top:50%;width:5px;height:5px;background:#e2b649;transform:translateY(-50%) rotate(45deg)}
+.ribbon::before{left:3px}.ribbon::after{right:3px}
+.num.named .ribbon{background:#fff3c4;color:#6b3f0a;box-shadow:0 0 0 1.5px #b07a18,inset 0 0 0 2px #fff3c4,inset 0 0 0 3px #e2b649}
+.mini .ribbon{top:80px;height:16px;font-size:calc(var(--fs) * 0.72px);padding:0 7px}
+.mini .ribbon::before,.mini .ribbon::after{width:3px;height:3px}
+@media (max-width:980px){.ribbon{top:92px;height:18px;font-size:calc(var(--fs) * 0.85px)}}
+.num.named .ribbon{font-size:calc(var(--fs) * 1px)}
+.mini.num.named .ribbon{font-size:calc(var(--fs) * 0.72px)}
 </style>
 </head>
 <body>
@@ -391,7 +405,7 @@ const PERSOS=[
   {pid:'john',value:9,name:'John, flic pugnace',short:'John',power:'Aucun effet.',quote:'Mon sixième sens ne me trompe jamais.'},
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Collection : +2 PV avec le Peintre.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
-  {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Refile 2 Catamarans de ta collection.',quote:'Vous voulez voir mon totem magique ?'},
+  {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet (pour l’instant).',quote:'Mes statuettes ! Mon restaurant !'},
   {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Le peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Collection : +3 avec Rodrigo, +2 avec la préférée.',quote:'…'},
@@ -664,6 +678,7 @@ function artFor(c){
   if(c.type==='cat') return ART.C(c.named?10:1);
   return ART.V(c.named?6:1);
 }
+const titleHTML=t=>`<div class="ribbon" style="--fs:${Math.min(12.5,168/t.length).toFixed(2)}"><span>${t}</span></div>`;
 const ptsBadge=p=>p?`<div class="pv ${p>0?'pos':'neg'}"><svg viewBox="0 0 24 24"><path d="M12 1.5 L14.9 8.6 L22.5 9.1 L16.7 14 L18.6 21.6 L12 17.5 L5.4 21.6 L7.3 14 L1.5 9.1 L9.1 8.6Z"/></svg><span>${Math.abs(p)}</span></div>`:'';
 function cardHTML(c,o={}){
   const mini=o.mini?' mini':'';
@@ -674,7 +689,7 @@ function cardHTML(c,o={}){
     const p=pts(c);
     const cs=COLORS[c.color];
     return `<div class="card special${mini}${extra}"${data} style="--bg1:${cs.bg1};--bg2:${cs.bg2};--rib:${cs.rib}">
-      <div class="medal">${c.value}</div>${ptsBadge(p)}<div class="ribbon${(c.short||c.name).length>14?' long':''}">${c.short||c.name}</div>
+      <div class="medal">${c.value}</div>${ptsBadge(p)}${titleHTML(c.short||c.name)}
       <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div><div class="ne">${c.effect}</div></div>`;
   }
   const col=COLORS[c.color];
@@ -683,13 +698,13 @@ function cardHTML(c,o={}){
     return `<div class="card perso${mini}${extra}"${data} ${st}>
       <div class="medal">${c.value}</div>${ptsBadge(pts(c))}
       <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
-      <div class="ribbon${(c.short||c.name).length>14?' long':''}">${c.short||c.name}</div><div class="pw">${c.power}</div></div>`;
+      ${titleHTML(c.short||c.name)}<div class="pw">${c.power}</div></div>`;
   }
   const p=pts(c);
   return `<div class="card num${c.named?' named':''}${mini}${extra}"${data} ${st}>
     <div class="medal">${c.value}</div>${ptsBadge(p)}
     <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
-    <div class="ribbon">${c.named?c.name:TYPES[c.type].name}</div></div>`;
+    ${titleHTML(c.named?({'Le tableau flamand':'Tableau flamand','La statuette préférée de Rodrigo':'Statuette préférée','Le catamaran géant':'Catamaran géant','La 6-roues de Marrakech':'6-roues de Marrakech'}[c.name]||c.name):TYPES[c.type].name)}</div>`;
 }
 function sortHand(h){
   const key=c=>[0,COLOR_ORDER.indexOf(c.color)*20+c.value];
@@ -837,7 +852,7 @@ function powerValue(p,c){
   const me=P(p);
   if(c.pid==='flic'){let m=0;for(const q of G.players) if(q.i!==p) for(const x of q.piles){const loss=progressValue(q.piles)-progressValue(q.piles.filter(y=>y!==x));m=Math.max(m,pts(x)+sceneGain(p,[x])+loss*0.7);}return m;}
   if(c.pid==='darlene') return 0.8;
-  if(c.pid==='agent') return -me.piles.filter(isC).sort((a,b)=>pts(a)-pts(b)).slice(0,2).reduce((s,x)=>s+pts(x),0);
+  if(c.pid==='agent'){const w=me.piles.filter(isC).sort((a,b)=>pts(a)-pts(b))[0];return w?-pts(w):0;}
   return 0;
 }
 function aiMove(p,cards){
@@ -1064,19 +1079,14 @@ async function winPower(we,won){
     }
   }
   if(pid==='agent'){
-    let cs=pl.piles.filter(isC).sort((a,b)=>pts(a)-pts(b)).slice(0,2);
-    if(!cs.length){log('L’agent du port contrôle… aucun catamaran à refiler.','link');}
-    const giant=cs.find(c=>c.named);
-    if(giant){
-      const keep=pl.human?await ask('Contrôle du port','Garder le catamaran géant de ta collection (utile pour « Le grand déménagement ») ?',[{label:'Le garder',value:true},{label:'Le refiler aussi',value:false,cls:'pink'}])
-        :sceneState(pl.piles,SCENES.find(x=>x.sid==='demenagement')).have>=1;
-      if(keep) cs=cs.filter(c=>c!==giant);
-    }
-    if(cs.length){
-      const opps=G.players.filter(q=>q.i!==p).map(q=>q.i);
-      const target=pl.human?await ask('Contrôle du port',`À qui refiles-tu ${cs.length>1?'ces catamarans':'ce catamaran'} ?`,opps.map(i=>({label:nm(i),value:i}))):aiPickOpp(p,opps);
-      for(const c of cs){pl.piles.splice(pl.piles.indexOf(c),1);P(target).piles.push(c);}
-      log(`Contrôle du port : ${cs.length} catamaran${cs.length>1?'s':''} refilé${cs.length>1?'s':''} à ${nm(target)}.`,'link');
+    const cs=pl.piles.filter(isC);
+    if(!cs.length) log('L’agent du port n’a aucun catamaran à défausser.','link');
+    else{
+      let c;
+      if(pl.human) c=cs.length===1?cs[0]:await pickCard('Contrôle du port','Défausse 1 Catamaran de ta collection au Montage :',cs,false);
+      else{const keepGiant=sceneState(pl.piles,SCENES.find(x=>x.sid==='demenagement')).have>=1;c=cs.filter(x=>!(keepGiant&&x.named)).sort((x,y)=>pts(x)-pts(y))[0]||cs[0];}
+      pl.piles.splice(pl.piles.indexOf(c),1);G.montage.push(c);
+      log(`Contrôle du port : ${pl.name} défausse ${cardName(c)} de sa collection.`,'link');
     }
   }
   render();
