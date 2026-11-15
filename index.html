@@ -387,7 +387,7 @@ const pidIs=p=>c=>c.pid===p;
 const SCENES=[
   {sid:'parking',name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'2 autres Voitures',f:c=>isV(c)&&!c.named,n:2}]},
   {sid:'casse',name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le tableau flamand',f:c=>isT(c)&&c.named},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
-  {sid:'totem',name:'Le totem magique',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem}]},
+  {sid:'totem',name:'Le totem magique',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
   {sid:'affaire',name:'Affaire classée',reqs:[{l:'John',f:pidIs('john')},{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')}]},
   {sid:'diner',name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
   {sid:'demenagement',name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]}
