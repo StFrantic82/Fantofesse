@@ -318,9 +318,9 @@ const PATTERN=['tab','cat','stat','voit','totem','tab','cat','stat','voit','tote
 // Cartes nommées uniques : une seule de chaque dans le paquet
 const NAMED={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}};
 const PERSOS=[
-  {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Le méchant : −5 PV pour qui le ramasse.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
+  {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'−5 PV pour qui le ramasse.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
   {pid:'john',value:9,name:'John, flic pugnace',short:'John',power:'Aucun effet.',quote:'Mon sixième sens ne me trompe jamais.'},
-  {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Collection : le Camion ne coûte que −2.',quote:'Camion.'},
+  {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Collection : +2 PV avec le Peintre.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Jouée : échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'Agent du port',power:'Joué : refile 2 Catamarans de ta collection.',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet (pour l’instant).',quote:'Mes statuettes ! Mon restaurant !'},
@@ -602,7 +602,7 @@ function cardHTML(c,o={}){
   const st=`style="--bg1:${col.bg1};--bg2:${col.bg2};--rib:${col.rib};--sl:${col.sl};--sc:${col.sc};--sc2:${col.sc2}"`;
   if(c.type==='perso'){
     return `<div class="card perso${mini}${extra}"${data} ${st}>
-      <div class="force">${c.value}</div>${pts(c)?`<div class="pts neg" style="top:38px;left:5px;right:auto">${pts(c)}</div>`:''}<div class="atout">ATOUT</div>
+      <div class="force">${c.value}</div>${pts(c)?`<div class="pts neg" style="top:38px;left:5px;right:auto">${pts(c)}</div>`:''}
       <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
       <div class="pn">${c.name}</div><div class="pw">${c.power}</div></div>`;
   }
@@ -1009,7 +1009,7 @@ async function winPower(we,won){
 function collectionBonus(piles){
   const has=f=>piles.some(f);let b=0;
   if(has(pidIs('copine'))){if(has(pidIs('rodrigo')))b+=3;if(has(c=>isS(c)&&c.named))b+=2;}
-  if(has(pidIs('joanne'))&&has(c=>c.sid==='camion'))b+=3;
+  if(has(pidIs('joanne'))&&has(pidIs('peintre')))b+=2;
   if(has(pidIs('secretaire'))&&has(pidIs('fanto')))b+=2;
   if(has(pidIs('peintre')))b+=piles.filter(isT).length;
   return b;
@@ -1232,7 +1232,7 @@ function rulesHTML(){
   <li>Statuettes : +3 (1 à 3), +2 (4 à 6), +1 (7 à 9), 0 (10). Catamarans et Voitures : −3, −2, −1, 0 selon les mêmes paliers.</li>
   <li>Tableaux : 0 PV. Ils ne valent que grâce au Peintre (+1 PV par Tableau dans sa collection).</li>
   <li>Les 4 cartes nommées (tableau flamand, statuette préférée, catamaran géant, 6-roues de Marrakech) : −2 PV. Elles ne paient que dans leur Scène culte.</li>
-  <li>Totem magique +1, Camion ! −5, Fantofesse −5, autres Personnages 0.</li><li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (le Camion ne coûte que −2), la secrétaire (+2 avec Fantofesse).</li></ul>
+  <li>Totem magique +1, Camion ! −5, Fantofesse −5, autres Personnages 0.</li><li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (+2 avec le Peintre), la secrétaire (+2 avec Fantofesse).</li></ul>
   <h3>Scènes cultes : victoire immédiate de la manche</h3>
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : <b>+${SCENE_PTS}</b> pour son auteur, 0 pour les autres.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td></tr>`).join('')}</table>
