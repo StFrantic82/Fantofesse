@@ -266,6 +266,23 @@ body::before{opacity:.18}
 .special .nt{background:var(--rib);color:#fff;left:30px;right:6px}
 .special .medal{z-index:3}
 .special .ne{color:#3a1028}
+
+/* ---------- Mise en page harmonisée ---------- */
+.card .art,.perso .art,.special .art{left:8px;right:8px;top:28px;height:74px;border-radius:8px}
+.perso .art{box-shadow:none}
+.ribbon{top:107px;left:8px;right:8px;justify-content:center;text-align:center;font-size:12.5px;line-height:1.1;padding:3px 6px}
+.perso .pw,.special .ne{top:133px;left:6px;right:6px;bottom:4px;display:block;text-align:center;font-family:'Playfair Display',serif;font-style:italic;font-size:10px;line-height:1.12;color:#3a1028;background:none;padding:0}
+.sicons,.perso .sicons,.special .sicons{top:86px}
+.mini .art,.mini.perso .art,.mini.special .art{top:20px;height:56px}
+.mini .ribbon{top:80px}
+.mini .sicons,.mini.special .sicons{top:63px}
+@media (max-width:980px){
+  .card .art,.perso .art,.special .art{top:22px;height:64px}
+  .ribbon{top:92px;font-size:11px}
+  .perso .pw,.special .ne{top:118px;font-size:9px}
+  .sicons,.perso .sicons,.special .sicons{top:71px}
+}
+.ribbon.long{font-size:10.5px;letter-spacing:-.2px}
 </style>
 </head>
 <body>
@@ -366,20 +383,20 @@ const PERSOS=[
   {pid:'john',value:9,name:'John, flic pugnace',short:'John',power:'Aucun effet.',quote:'Mon sixième sens ne me trompe jamais.'},
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Collection : +2 PV avec le Peintre.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
-  {pid:'agent',value:6,name:'L’agent du port',short:'Agent du port',power:'Refile 2 Catamarans de ta collection.',quote:'Vous voulez voir mon totem magique ?'},
+  {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Refile 2 Catamarans de ta collection.',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet (pour l’instant).',quote:'Mes statuettes ! Mon restaurant !'},
-  {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
-  {pid:'copine',value:3,name:'La copine de Rodrigo',short:'Copine',power:'Collection : +3 avec Rodrigo, +2 avec la statuette préférée.',quote:'…'},
-  {pid:'flic',value:2,name:'Le flic infiltré',short:'Flic infiltré',power:'Prends 1 carte dans une collection adverse.',quote:'Mon pays est plat. C’est ce que j’aime.'},
+  {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Le peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
+  {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Collection : +3 avec Rodrigo, +2 avec la préférée.',quote:'…'},
+  {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Prends 1 carte dans une collection adverse.',quote:'Mon pays est plat. C’est ce que j’aime.'},
   {pid:'murielle',name:'Murielle',short:'Murielle',power:'Aucun effet (pour l’instant).',quote:'Enchantée. … Camion ?'},
-  {pid:'secretaire',value:1,name:'La secrétaire',short:'Secrétaire',power:'Collection : +2 PV avec Fantofesse.',quote:'C’est quoi, déjà, le mot de passe ?'}
+  {pid:'secretaire',value:1,name:'La secrétaire',short:'La secrétaire',power:'Collection : +2 PV avec Fantofesse.',quote:'C’est quoi, déjà, le mot de passe ?'}
 ];
 const SPECIALS=[
-  {sid:'ding',name:'Ding, l’ami de Mickey',effect:'Regarde sans réagir. Aucun effet.'},
-  {sid:'babounia',name:'Hôtel La Babounia',effect:'Consulte le Montage et échange en secret 1 carte de ta main.'},
-  {sid:'transition',name:'Transition',effect:'Une fois le pli joué : personne ne gagne, tout est défaussé.'},
-  {sid:'camion',name:'Camion !',effect:'Tout le monde crie « Camion ! » : le dernier prend la carte. −5'},
-  {sid:'doublage',name:'Mauvais doublage',effect:'Dans ce pli, les Personnages valent 0 (effets maintenus).'}
+  {sid:'ding',short:'Ding',name:'Ding, l’ami de Mickey',effect:'Regarde sans réagir.'},
+  {sid:'babounia',short:'La Babounia',name:'Hôtel La Babounia',effect:'Échange en secret 1 carte de ta main avec le Montage.'},
+  {sid:'transition',short:'Transition',name:'Transition',effect:'Personne ne gagne ce pli : tout est défaussé.'},
+  {sid:'camion',short:'Camion !',name:'Camion !',effect:'Tous crient « Camion ! » : le dernier la prend.'},
+  {sid:'doublage',short:'Mauvais doublage',name:'Mauvais doublage',effect:'Les Personnages valent 0 dans ce pli.'}
 ];
 const isType=t=>c=>c.kind==='num'&&c.type===t;
 const isT=isType('tab'),isS=isType('stat'),isC=isType('cat'),isV=isType('voit'),isTotem=isType('totem'),isPerso=isType('perso');
@@ -648,22 +665,22 @@ function cardHTML(c,o={}){
     const p=pts(c);
     const cs=COLORS[c.color];
     return `<div class="card special${mini}${extra}"${data} style="--bg1:${cs.bg1};--bg2:${cs.bg2};--rib:${cs.rib}">
-      <div class="medal">${c.value}</div><div class="nt">${c.name}</div>${p?`<div class="pts neg" style="top:30px">${p}</div>`:''}
+      <div class="medal">${c.value}</div>${p?`<div class="pts neg">${p}</div>`:''}<div class="ribbon${(c.short||c.name).length>14?' long':''}">${c.short||c.name}</div>
       <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div><div class="ne">${c.effect}</div></div>`;
   }
   const col=COLORS[c.color];
   const st=`style="--bg1:${col.bg1};--bg2:${col.bg2};--rib:${col.rib};--sl:${col.sl};--sc:${col.sc};--sc2:${col.sc2}"`;
   if(c.type==='perso'){
     return `<div class="card perso${mini}${extra}"${data} ${st}>
-      <div class="force">${c.value}</div>${pts(c)?`<div class="pts neg" style="top:38px;left:5px;right:auto">${pts(c)}</div>`:''}
+      <div class="medal">${c.value}</div>${pts(c)?`<div class="pts neg">${pts(c)}</div>`:''}
       <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
-      <div class="pn">${c.name}</div><div class="pw">${c.power}</div></div>`;
+      <div class="ribbon${(c.short||c.name).length>14?' long':''}">${c.short||c.name}</div><div class="pw">${c.power}</div></div>`;
   }
   const p=pts(c);
   return `<div class="card num${c.named?' named':''}${mini}${extra}"${data} ${st}>
     <div class="medal">${c.value}</div>${p?`<div class="pts${p<0?' neg':''}">${p>0?'+':''}${p}</div>`:''}
     <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
-    <div class="ribbon">${c.named?c.name:TYPES[c.type].name}</div><div class="suit">${col.name}</div></div>`;
+    <div class="ribbon">${c.named?c.name:TYPES[c.type].name}</div></div>`;
 }
 function sortHand(h){
   const key=c=>[0,COLOR_ORDER.indexOf(c.color)*20+c.value];
