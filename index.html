@@ -186,6 +186,16 @@ header button{font-size:13px;padding:6px 12px}
 .box th{color:var(--gold);font-family:'Playfair Display',serif;font-style:italic}
 .box td.n{text-align:right;font-family:'Abril Fatface',serif}
 .box tr.best td{color:var(--gold2)}
+.box.wide{max-width:1180px}
+.gtabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.gtabs button{font-size:13px;padding:6px 12px;background:rgba(255,255,255,.07);color:var(--cream);box-shadow:0 0 0 1.5px rgba(242,193,78,.5)}
+.gtabs button.on{color:#3a1028;background:linear-gradient(180deg,#fff3bf,#f2c14e 50%,#d39a2b);box-shadow:0 0 0 2px #a8741a}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px 12px;padding:6px}
+.gcell{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.gcell .cap{font-size:14px;line-height:1.2;color:var(--muted);max-width:170px}
+.gcell .cap b{color:var(--gold2);font-family:'Playfair Display',serif;font-style:italic}
+.gcell .cap i{color:#ff8cc0;font-style:normal}
+.gsec{font-family:'Pacifico',cursive;color:var(--pink);font-size:22px;margin:14px 0 2px;grid-column:1/-1}
 .rules h3{font-family:'Playfair Display',serif;font-style:italic;font-size:19px;color:var(--gold);margin:16px 0 6px}
 .rules li{margin-bottom:4px}
 .bar{height:10px;background:rgba(0,0,0,.5);border-radius:999px;overflow:hidden;margin:12px 0}
@@ -234,7 +244,7 @@ header button{font-size:13px;padding:6px 12px}
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
         <button class="big pink" id="start">♥ Moteur… Action !</button>
-        <button class="ghost" id="rulesT">Les règles</button>
+        <button class="ghost" id="rulesT">Les règles</button><button class="ghost" id="cardsT">Les cartes</button>
       </div>
       <p class="credit">D'après <i>2 sœurs à en (bip)er</i> (Art of Love, 1998) et <a href="https://www.nanarland.com/chroniques/aux-portes-du-nanar/erotique/2-soeurs-a-en-bip-er.html" target="_blank" rel="noopener">sa chronique sur Nanarland</a>. Cartes dessinées pour ce jeu.</p>
     </div>
@@ -247,7 +257,7 @@ header button{font-size:13px;padding:6px 12px}
     <div class="logo gold-text">Fantofesse !</div>
     <div class="info" id="hinfo"></div>
     <div class="sp"></div>
-    <button class="ghost" id="rulesG">Règles</button>
+    <button class="ghost" id="rulesG">Règles</button><button class="ghost" id="cardsG">Cartes</button>
     <button class="ghost" id="quit">Quitter le tournage</button>
   </header>
   <div id="main">
@@ -1019,8 +1029,8 @@ function scoreOf(i){
 /* =========================================================
    INTERACTIONS
    ========================================================= */
-function openModal(html){$('#mbox').innerHTML=html;$('#modal').classList.add('on');}
-function closeModal(){$('#modal').classList.remove('on');$('#mbox').innerHTML='';}
+function openModal(html){$('#mbox').classList.remove('wide');$('#mbox').innerHTML=html;$('#modal').classList.add('on');}
+function closeModal(){$('#modal').classList.remove('on');$('#mbox').innerHTML='';$('#mbox').classList.remove('wide');}
 function ask(title,text,options,cardsHTML=''){
   if(AUTOTEST) return Promise.resolve(options[rand(options.length)].value);
   return new Promise(res=>{
@@ -1231,6 +1241,31 @@ function rulesHTML(){
   <li>Camion ! : un réflexe à cliquer au signal. Faux départ = disqualifié.</li></ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
+const GTABS=[['all','Toutes'],['T','Tableaux'],['S','Statuettes'],['C','Catamarans'],['V','Voitures'],['perso','Personnages'],['nanar','Cartes Nanar']];
+const LINKS_OF={fanto:'3, 4, 5, 6, 7',john:'2, 4, 5',flic:'2, 3',darlene:'8, 9, 11',agent:'11',rodrigo:'1, 7, 8',peintre:'10',copine:'1, 4, 6',joanne:'9, 10'};
+function cardCaption(c){
+  const sc=SCENES.filter(s=>s.reqs.some(r=>r.f(c))).map(s=>s.name);
+  const scTxt=sc.length?`<br><i>Scène${sc.length>1?'s':''} : ${sc.join(', ')}</i>`:'';
+  if(c.kind==='decor'){const p=pts(c);return `<b>${c.named||SUITS[c.suit].name+' '+c.value}</b><br>${p>0?'+':''}${p} point${Math.abs(p)>1?'s':''}${scTxt}`;}
+  if(c.kind==='perso') return `<b>${c.name}</b> · force ${c.force}<br>${c.power}<br>Liens n° ${LINKS_OF[c.pid]}${scTxt}`;
+  const p=pts(c);return `<b>${c.name}</b><br>${c.effect}${p?'':''}${scTxt}`;
+}
+function galleryBody(tab){
+  const deck=makeDeck();
+  const groups=[['T','Tableaux',c=>isT(c)],['S','Statuettes',c=>isS(c)],['C','Catamarans',c=>isC(c)],['V','Voitures à 6 roues',c=>isV(c)],['perso','Personnages (atouts)',c=>c.kind==='perso'],['nanar','Cartes Nanar',c=>c.kind==='nanar']];
+  return groups.filter(g=>tab==='all'||g[0]===tab).map(g=>{
+    const cs=deck.filter(g[2]);
+    return `<div class="gsec">${g[1]} (${cs.length})</div>`+cs.map(c=>`<div class="gcell">${cardHTML(c)}<div class="cap">${cardCaption(c)}</div></div>`).join('');
+  }).join('');
+}
+function showCards(tab='all'){
+  openModal(`<h2>Les 55 cartes</h2><div class="gtabs">${GTABS.map(t=>`<button data-t="${t[0]}" class="${t[0]===tab?'on':''}">${t[1]}</button>`).join('')}</div>
+    <div class="gal">${galleryBody(tab)}</div><div class="btns"><button class="pink" id="closeG">Fermer</button></div>`);
+  $('#mbox').classList.add('wide');
+  $('#mbox').querySelectorAll('.gtabs button').forEach(b=>b.onclick=()=>showCards(b.dataset.t));
+  $('#closeG').onclick=closeModal;
+  $('#mbox').scrollTop=0;
+}
 function showRules(){openModal(rulesHTML());$('#closeR').onclick=closeModal;}
 
 /* =========================================================
@@ -1247,7 +1282,7 @@ function goHome(){if(G)G.run=-1;G=null;CUR=-2;closeModal();$('#game').style.disp
 document.querySelectorAll('#optN button').forEach(b=>b.onclick=()=>{optN=+b.dataset.n;document.querySelectorAll('#optN button').forEach(x=>x.classList.toggle('on',x===b));});
 document.querySelectorAll('#optS button').forEach(b=>b.onclick=()=>{SPEED=+b.dataset.s;document.querySelectorAll('#optS button').forEach(x=>x.classList.toggle('on',x===b));});
 $('#start').onclick=()=>startGame(optN);
-$('#rulesT').onclick=showRules;$('#rulesG').onclick=showRules;
+$('#rulesT').onclick=showRules;$('#cardsT').onclick=()=>showCards();$('#cardsG').onclick=()=>showCards();$('#rulesG').onclick=showRules;
 $('#quit').onclick=async()=>{const r=await ask('Quitter le tournage ?','La partie en cours sera perdue.',[{label:'Quitter',value:1},{label:'Continuer',value:0,cls:'pink'}]);if(r)goHome();};
 $('#hand').addEventListener('click',e=>{const el=e.target.closest('.card');if(el&&G)onHandClick(el.dataset.id);});
 (function fan(){
