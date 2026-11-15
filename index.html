@@ -311,22 +311,22 @@ const PATTERN=['tab','cat','stat','voit','totem','tab','cat','stat','voit','tote
 // Cartes nommées uniques : une seule de chaque dans le paquet
 const NAMED={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}};
 const PERSOS=[
-  {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'S’il gagne : vole 1 Tableau dans une collection.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
+  {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Vaut −5 PV. S’il gagne : vole 1 Tableau dans une collection.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
   {pid:'john',value:9,name:'John, flic pugnace',short:'John',power:'Annonce le gagnant du pli. Juste : +2.',quote:'Mon sixième sens ne me trompe jamais.'},
-  {pid:'flic',value:8,name:'Le flic infiltré',short:'Flic infiltré',power:'Voit 1 carte du joueur suivant.',quote:'Mon pays est plat. C’est ce que j’aime.'},
+  {pid:'flic',value:8,name:'Le flic infiltré',short:'Flic infiltré',power:'S’il gagne : vole la carte de son choix dans la collection du joueur de son choix.',quote:'Mon pays est plat. C’est ce que j’aime.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Si elle gagne : peut jeter 2 Voitures du pli.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'Agent du port',power:'S’il gagne : refile les Catamarans.',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'S’il gagne : 1 carte de sa main au Montage.',quote:'Mes statuettes ! Mon restaurant !'},
   {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Peintre',power:'Je suis moi. (Aucun pouvoir, mais quel style.)',quote:'Je suis moi.'},
-  {pid:'copine',value:3,name:'La copine de Rodrigo',short:'Copine',power:'Distinguée : n’entame jamais.',quote:'…'},
+  {pid:'copine',value:3,name:'La copine de Rodrigo',short:'Copine',power:'Si elle gagne : chacun passe 1 carte au hasard à gauche.',quote:'…'},
   {pid:'joanne',value:2,name:'Joanne',short:'Joanne',power:'Ne dit presque rien.',quote:'Camion.'},
-  {pid:'secretaire',value:1,name:'La secrétaire',short:'Secrétaire',power:'Si elle gagne : chacun passe 1 carte au hasard à gauche.',quote:'C’est quoi, déjà, le mot de passe ?'}
+  {pid:'secretaire',value:1,name:'La secrétaire',short:'Secrétaire',power:'Mot de passe oublié : n’entame jamais.',quote:'C’est quoi, déjà, le mot de passe ?'}
 ];
 const SPECIALS=[
   {sid:'babounia',name:'Hôtel La Babounia',effect:'Consulte le Montage et échange en secret 1 carte de ta main.'},
   {sid:'transition',name:'Transition',effect:'Une fois le pli joué : personne ne gagne, tout est défaussé.'},
   {sid:'camion',name:'Camion !',effect:'Tout le monde crie « Camion ! » : le dernier prend la carte. −5'},
-  {sid:'doublage',name:'Mauvais doublage',effect:'Dans ce pli, les Personnages n’ont plus d’effet et valent 0.'}
+  {sid:'doublage',name:'Mauvais doublage',effect:'Dans ce pli, les Personnages ne sont plus atout et valent 0 (leurs effets s’appliquent).'}
 ];
 const isType=t=>c=>c.kind==='num'&&c.type===t;
 const isT=isType('tab'),isS=isType('stat'),isC=isType('cat'),isV=isType('voit'),isTotem=isType('totem'),isPerso=isType('perso');
@@ -547,7 +547,7 @@ function makeDeck(){
 }
 function pts(c){
   if(c.kind==='num'){
-    if(c.type==='perso') return 0;
+    if(c.type==='perso') return c.pid==='fanto'?-5:0;
     if(c.type==='totem') return 1;
     const tier=c.value===10?0:c.value>=7?1:c.value>=4?2:3;
     return tier*TYPES[c.type].sign;
@@ -584,7 +584,7 @@ function cardHTML(c,o={}){
   const st=`style="--bg1:${col.bg1};--bg2:${col.bg2};--rib:${col.rib};--sl:${col.sl};--sc:${col.sc};--sc2:${col.sc2}"`;
   if(c.type==='perso'){
     return `<div class="card perso${mini}${extra}"${data} ${st}>
-      <div class="force">${c.value}</div><div class="atout">ATOUT</div>
+      <div class="force">${c.value}</div>${pts(c)?`<div class="pts neg" style="top:24px;right:6px">${pts(c)}</div>`:''}<div class="atout">ATOUT</div>
       <div class="art">${artFor(c)}</div>
       <div class="pn">${c.name}</div><div class="pw">${c.power}</div></div>`;
   }
@@ -654,7 +654,7 @@ function ledColorOf(trick){
 }
 function legalCards(p,trick=G.trick){
   const hand=P(p).hand;
-  if(trick.length===0){const nc=hand.filter(c=>c.pid!=='copine');return nc.length?nc:hand;}
+  if(trick.length===0){const nc=hand.filter(c=>c.pid!=='secretaire');return nc.length?nc:hand;}
   const led=ledColorOf(trick);
   if(!led) return hand;
   const follow=hand.filter(c=>c.kind==='num'&&c.color===led);
@@ -666,7 +666,7 @@ function resolveTrick(trick,doublage){
   const effects=[],lines=[];let winner,winEntry=null,dfLeader=null;
   const fix=e=>{if(winner===undefined){winner=e?e.p:null;winEntry=e||null;}};
   const get=pid=>cards.find(c=>c.alive&&c.card.pid===pid&&!(pid==='fanto'&&c.unmasked));
-  if(!doublage){
+  {
     let r,c,f,j,fa,d,jo,pe,ag;
     r=get('rodrigo');c=get('copine');
     if(r&&c){r.alive=false;c.alive=false;
@@ -705,7 +705,7 @@ function resolveTrick(trick,doublage){
   }
   if(winner===undefined){
     let best=null;
-    for(const c of cards) if(c.alive&&c.card.kind==='num'&&c.card.color==='A'&&(!best||c.val>best.val)) best=c;
+    if(!doublage) for(const c of cards) if(c.alive&&c.card.kind==='num'&&c.card.color==='A'&&(!best||c.val>best.val)) best=c;
     if(!best){
       const led=ledColorOf(trick);
       for(const c of cards) if(c.alive&&c.card.kind==='num'&&c.card.color===led&&(!best||c.val>best.val)) best=c;
@@ -719,6 +719,7 @@ function resolveTrick(trick,doublage){
    IA
    ========================================================= */
 function keepScore(c){
+  if(c.pid==='fanto') return 2.2;
   if(c.kind==='special') return c.sid==='camion'?-4:c.sid==='transition'?1:c.sid==='babounia'?0.8:0.5;
   if(isPerso(c)) return 1.2+c.value*0.2-(c.pid==='copine'?0.6:0);
   const p=pts(c);return p<0?p-c.value*0.12:p+c.value*0.08;
@@ -872,17 +873,7 @@ async function playTrick(){
 }
 async function onPlay(entry){
   const c=entry.card,pl=P(entry.p),F=G.flags;
-  if(isPerso(c)&&!F.doublage){
-    if(c.pid==='flic'){
-      const idx=G.order.indexOf(entry.p);
-      const nxt=G.order.slice(idx+1).find(q=>P(q).hand.length);
-      if(nxt!==undefined){
-        const seen=P(nxt).hand[rand(P(nxt).hand.length)];
-        if(pl.human) await info('Il sait tout',`Tu jettes un œil dans la main de ${nm(nxt)} :`,[seen]);
-        else{log(`Le flic infiltré de ${pl.name} jette un œil dans la main de ${nm(nxt)}.`);
-          if(P(nxt).human) toast(`${pl.name} a vu ta carte ${cardName(seen)}`);}
-      }
-    }
+  if(isPerso(c)){
     if(c.pid==='john'){
       let target;
       if(pl.human) target=await ask('Sixième sens','Ton sixième sens de flic te dit que ce pli sera gagné par…',
@@ -892,7 +883,7 @@ async function onPlay(entry){
       log(`John (${pl.name}) : « Mon sixième sens me dit… ${target===0&&P(0).human?'toi':nm(target)}. »`,'link');
     }
   }
-  if(c.sid==='doublage'){F.doublage=true;log('Mauvais doublage : dans ce pli, les Personnages n’ont plus d’effet et valent 0.','link');}
+  if(c.sid==='doublage'){F.doublage=true;log('Mauvais doublage : dans ce pli, les Personnages ne sont plus atout et valent 0 (leurs effets s’appliquent).','link');}
   if(c.sid==='transition'){F.transition=entry.p;log('Transition ! Le pli se joue jusqu’au bout… puis personne ne le gagnera.','link');}
   if(c.sid==='babounia') await babouniaSwap(entry.p);
   if(c.sid==='camion'){F.camionTaker=await camionRace();log(`« Camion ! » … ${nm(F.camionTaker)} a crié en dernier et récupère la carte (−5).`,'link');}
@@ -971,7 +962,7 @@ async function finishTrick(){
     log(`${tp.human?'Tu remportes':tp.name+' remporte'} le pli.`,'win');
     render();
     const we=res.winEntry;
-    if(!F.doublage&&we&&isPerso(we.card)&&!we.unmasked&&we.p===taker) await winPower(we,won);
+    if(we&&isPerso(we.card)&&!we.unmasked&&we.p===taker) await winPower(we,won);
     G.leader=taker;
   }
   if(F.john){
@@ -1010,6 +1001,24 @@ async function winPower(we,won){
     P(target).piles.splice(P(target).piles.indexOf(t),1);pl.piles.push(t);
     log(`Le cutter : ${pl.name} découpe ${cardName(t)} dans la collection de ${nm(target)}.`,'link');
   }
+  if(pid==='flic'){
+    const opts=[];
+    for(const q of G.players) if(q.i!==p) for(const c of q.piles) opts.push({q:q.i,c});
+    if(!opts.length){log('Le flic infiltré fouille les collections… elles sont vides.','link');}
+    else{
+      let pick;
+      if(pl.human){
+        const target=await ask('Le flic infiltré','Dans la collection de qui veux-tu te servir ?',G.players.filter(q=>q.i!==p&&q.piles.length).map(q=>({label:`${q.name} (${q.piles.length} cartes)`,value:q.i})));
+        const c=await pickCard('Le flic infiltré',`Quelle carte prends-tu dans la collection de ${nm(target)} ?`,P(target).piles,false);
+        pick={q:target,c};
+      }else{
+        let bu=-1e9;
+        for(const o of opts){const u=pts(o.c)+sceneGain(p,[o.c])+0.6*sceneGain(o.q,[])-0.0+ (progressValue(P(o.q).piles)-progressValue(P(o.q).piles.filter(x=>x!==o.c)))*0.7;if(u>bu){bu=u;pick=o;}}
+      }
+      P(pick.q).piles.splice(P(pick.q).piles.indexOf(pick.c),1);pl.piles.push(pick.c);
+      log(`Le flic infiltré : ${pl.name} confisque ${cardName(pick.c)} dans la collection de ${nm(pick.q)}.`,'link');
+    }
+  }
   if(pid==='darlene'){
     const vs=won.filter(isV).sort((a,b)=>pts(a)-pts(b)).slice(0,2);
     if(vs.length){
@@ -1042,12 +1051,12 @@ async function winPower(we,won){
     else{const w=pl.hand.slice().sort((a,b)=>keepScore(a)-keepScore(b))[0];if(keepScore(w)<-0.5)card=w;}
     if(card){pl.hand.splice(pl.hand.indexOf(card),1);G.montage.push(card);log(`Rodrigo (${pl.name}) met une carte de sa main au Montage.`,'link');}
   }
-  if(pid==='secretaire'){
+  if(pid==='copine'){
     const withCards=G.players.filter(q=>q.hand.length);
     const passed=withCards.map(q=>({from:q.i,card:q.hand.splice(rand(q.hand.length),1)[0]}));
     for(const x of passed){let to=(x.from+1)%G.n;let k=0;while(!P(to).hand.length&&k<G.n&&to!==x.from){to=(to+1)%G.n;k++;}P(to).hand.push(x.card);sortHand(P(to).hand);
-      if(P(to).human) toast(`Dossiers mélangés : tu reçois ${cardName(x.card)}`);}
-    log('Dossiers mélangés : la secrétaire a perdu le mot de passe, chacun passe une carte au hasard à gauche.','link');
+      if(P(to).human) toast(`Tu reçois ${cardName(x.card)}`);}
+    log('Petit jeu de la copine de Rodrigo : chacun passe une carte au hasard à son voisin de gauche.','link');
   }
   render();
 }
@@ -1229,7 +1238,7 @@ function cardCaption(c){
   const sc=SCENES.filter(s=>s.reqs.some(r=>r.f(c))).map(s=>s.name);
   const scTxt=sc.length?`<br><i>Scène${sc.length>1?'s':''} : ${sc.join(', ')}</i>`:'';
   if(c.kind==='special') return `<b>${c.name}</b> · sans couleur<br>${c.effect}${scTxt}`;
-  if(isPerso(c)) return `<b>${c.name}</b> · atout ${c.value}<br>${c.power}<br>Liens n° ${LINKS_OF[c.pid]}${scTxt}`;
+  if(isPerso(c)) return `<b>${c.name}</b> · atout ${c.value}${pts(c)?` · ${pts(c)} PV`:''}<br>${c.power}<br>Liens n° ${LINKS_OF[c.pid]}${scTxt}`;
   const p=pts(c);
   return `<b>${c.named?c.name:TYPES[c.type].name}</b> · ${COLORS[c.color].name} ${c.value}<br>${p>0?'+':''}${p} point${Math.abs(p)>1?'s':''}${scTxt}`;
 }
@@ -1271,13 +1280,13 @@ function rulesHTML(){
   <li><b>4 cartes spéciales</b> sans couleur : Hôtel La Babounia, Transition, Camion !, Mauvais doublage.</li></ul>
   <h3>Un pli</h3><ul>
   <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas : coupe avec un atout, défausse n'importe quelle carte, ou joue une carte spéciale.</li>
-  <li>On peut entamer avec n'importe quelle carte (sauf la Copine). Après une spéciale d'entame, la première carte de couleur fixe la couleur demandée.</li>
+  <li>On peut entamer avec n'importe quelle carte (sauf la secrétaire). Après une spéciale d'entame, la première carte de couleur fixe la couleur demandée.</li>
   <li>Le plus fort atout gagne ; sinon la plus forte carte de la couleur demandée. Les spéciales ne gagnent jamais.</li>
   <li>Chaque manche : 5 cartes coupées au Montage (scénario troué), puis 3 cartes passées au voisin.</li></ul>
   <h3>Les cartes spéciales</h3><ul>${SPECIALS.map(s=>`<li><b>${s.name}</b> : ${s.effect}</li>`).join('')}</ul>
   <h3>Points : plus une carte est forte, moins elle rapporte</h3><ul>
   <li>Tableaux et Statuettes : +3 (1 à 3), +2 (4 à 6), +1 (7 à 9), 0 (10). Catamarans et Voitures : −3, −2, −1, 0 selon les mêmes paliers.</li>
-  <li>Totem magique +1, Camion ! −5, Personnages 0, Sixième sens réussi +2.</li></ul>
+  <li>Totem magique +1, Camion ! −5, Fantofesse −5, autres Personnages 0, Sixième sens réussi +2.</li></ul>
   <h3>Scènes cultes : victoire immédiate de la manche</h3>
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : <b>+${SCENE_PTS}</b> pour son auteur, 0 pour les autres.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th></tr>${SCENES.map(s=>`<tr><td>${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td></tr>`).join('')}</table>
