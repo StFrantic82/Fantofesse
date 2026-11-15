@@ -255,6 +255,17 @@ body::before{opacity:.18}
 .special .art{box-shadow:none;background:#fff}
 .special .ne{background:none}
 .sicon{box-shadow:0 0 0 1px rgba(0,0,0,.45)}
+
+/* ---------- Personnages et spéciales dans les couleurs ---------- */
+.perso{background:var(--bg1);box-shadow:inset 0 0 0 3px var(--bg2),0 0 0 1px rgba(0,0,0,.35),0 4px 10px rgba(0,0,0,.35)}
+.perso .force{color:var(--rib)}
+.perso .art{box-shadow:0 0 0 2px var(--rib)}
+.perso .pn{color:var(--rib);font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:13px}
+.perso .pw{color:#3a1028}
+.special{background:var(--bg1);box-shadow:inset 0 0 0 3px var(--bg2),0 0 0 1px rgba(0,0,0,.35),0 4px 10px rgba(0,0,0,.35)}
+.special .nt{background:var(--rib);color:#fff;left:30px;right:6px}
+.special .medal{z-index:3}
+.special .ne{color:#3a1028}
 </style>
 </head>
 <body>
@@ -265,7 +276,7 @@ body::before{opacity:.18}
     <div>
       <h1 class="gold-text">Fantofesse&nbsp;!</h1>
       <div class="sub">le jeu de plis à en (bip)er</div>
-      <p>Un jeu de plis à 4 couleurs et un atout : les Personnages. Expose ta collection devant toi et réunis une <b style="color:var(--gold2)">Scène culte</b> pour couper la manche net et empocher 15 PV. Plus une carte est forte, moins elle rapporte.</p>
+      <p>Un jeu de plis à 4 couleurs, sans atout. Expose ta collection devant toi et réunis une <b style="color:var(--gold2)">Scène culte</b> pour couper la manche net et empocher 15 PV. Plus une carte est forte, moins elle rapporte.</p>
       <div class="lbl">Nombre de joueurs</div>
       <div class="opts" id="optN">
         <button data-n="3">3 joueurs</button><button data-n="4" class="on">4 joueurs</button><button data-n="5">5 joueurs</button>
@@ -328,7 +339,7 @@ const COLORS={
   A:{name:'Violet',atout:true,bg1:'#e2c8ff',bg2:'#6a1fb0',rib:'#3a0a6e',sl:'#f3e8ff',sc:'#9b5de5',sc2:'#f1e6ff'}
 };
 const SUIT_COLORS=['J','G','B','R'];
-const COLOR_ORDER=['J','G','B','R','A'];
+const COLOR_ORDER=['J','G','B','R'];
 const TYPES={
   tab:{name:'Tableau',plural:'Tableaux',sign:1,chip:'#e0a514',t:'#3a2400'},
   stat:{name:'Statuette',plural:'Statuettes',sign:1,chip:'#a0522d',t:'#fff'},
@@ -339,9 +350,16 @@ const TYPES={
 };
 // Disposition des 10 cartes d'une couleur (nombres 1 à 10), décalée de 2 crans par couleur
 // Même disposition dans chaque couleur : 1-2 Tableaux, 3-4 Voitures, 5-6 Statuettes, 7-8 Totems, 9-10 Catamarans
-const LAYOUT={1:'tab',2:'tab',3:'voit',4:'voit',5:'stat',6:'stat',7:'totem',8:'totem',9:'cat',10:'cat'};
+const OBJ_ORDER=['tab','tab','voit','voit','stat','stat','totem','cat','cat'];
+// Personnages (p:) et spéciales (s:) placés dans chaque couleur ; les objets remplissent les autres numéros, dans l'ordre
+const EXTRAS={
+  J:{3:'p:secretaire',8:'p:peintre',11:'s:transition',13:'p:fanto'},
+  G:{2:'s:babounia',5:'p:copine',9:'p:rodrigo',13:'p:john'},
+  B:{4:'p:murielle',7:'p:joanne',10:'s:camion',12:'p:agent'},
+  R:{1:'s:ding',6:'p:flic',11:'s:doublage',13:'p:darlene'}
+};
 // Cartes nommées uniques (couleur + valeur)
-const NAMED_AT={J2:'Le tableau flamand',G6:'La statuette préférée de Rodrigo',B10:'Le catamaran géant',R4:'La 6-roues de Marrakech'};
+const NAMED_AT={J2:'Le tableau flamand',G8:'La statuette préférée de Rodrigo',B13:'Le catamaran géant',R5:'La 6-roues de Marrakech'};
 const PTS={tab:[3,1],voit:[2,0],stat:[1,-1],totem:[0,0],cat:[-1,-3]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'−5 PV pour qui le ramasse.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
@@ -353,13 +371,15 @@ const PERSOS=[
   {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'Copine',power:'Collection : +3 avec Rodrigo, +2 avec la statuette préférée.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Flic infiltré',power:'Prends 1 carte dans une collection adverse.',quote:'Mon pays est plat. C’est ce que j’aime.'},
+  {pid:'murielle',name:'Murielle',short:'Murielle',power:'Aucun effet (pour l’instant).',quote:'Enchantée. … Camion ?'},
   {pid:'secretaire',value:1,name:'La secrétaire',short:'Secrétaire',power:'Collection : +2 PV avec Fantofesse.',quote:'C’est quoi, déjà, le mot de passe ?'}
 ];
 const SPECIALS=[
+  {sid:'ding',name:'Ding, l’ami de Mickey',effect:'Regarde sans réagir. Aucun effet.'},
   {sid:'babounia',name:'Hôtel La Babounia',effect:'Consulte le Montage et échange en secret 1 carte de ta main.'},
   {sid:'transition',name:'Transition',effect:'Une fois le pli joué : personne ne gagne, tout est défaussé.'},
   {sid:'camion',name:'Camion !',effect:'Tout le monde crie « Camion ! » : le dernier prend la carte. −5'},
-  {sid:'doublage',name:'Mauvais doublage',effect:'Personnages plus atout et à 0 dans ce pli (effets maintenus).'}
+  {sid:'doublage',name:'Mauvais doublage',effect:'Dans ce pli, les Personnages valent 0 (effets maintenus).'}
 ];
 const isType=t=>c=>c.kind==='num'&&c.type===t;
 const isT=isType('tab'),isS=isType('stat'),isC=isType('cat'),isV=isType('voit'),isTotem=isType('totem'),isPerso=isType('perso');
@@ -367,7 +387,7 @@ const pidIs=p=>c=>c.pid===p;
 const SCENES=[
   {sid:'parking',name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'2 autres Voitures',f:c=>isV(c)&&!c.named,n:2}]},
   {sid:'casse',name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le tableau flamand',f:c=>isT(c)&&c.named},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
-  {sid:'totem',name:'Le totem magique',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'4 Totems magiques',f:isTotem,n:4}]},
+  {sid:'totem',name:'Le totem magique',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'3 Totems magiques',f:isTotem,n:3}]},
   {sid:'affaire',name:'Affaire classée',reqs:[{l:'John',f:pidIs('john')},{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')}]},
   {sid:'diner',name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
   {sid:'demenagement',name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]}
@@ -557,6 +577,13 @@ const ART={
     <circle cx="22" cy="49" r="6" fill="#1a1a1a"/><circle cx="46" cy="49" r="6" fill="#1a1a1a"/><circle cx="78" cy="49" r="6" fill="#1a1a1a"/>
     <g fill="#f2c14e"><circle cx="22" cy="49" r="2.5"/><circle cx="46" cy="49" r="2.5"/><circle cx="78" cy="49" r="2.5"/></g>
     ${sparkle(92,12,4,'#ff2d7a')}${sparkle(6,62,3,'#f2c14e')}`),
+  murielle:()=>svgWrap(`<rect width="100" height="70" fill="#c4f6f7"/>${sparkle(14,12,4)}
+    <circle cx="50" cy="30" r="20" fill="#c2410c"/><circle cx="34" cy="38" r="9" fill="#c2410c"/><circle cx="66" cy="38" r="9" fill="#c2410c"/>
+    <path d="M26 70 Q28 50 50 48 Q72 50 74 70Z" fill="#ff2d7a"/>
+    ${face(50,33,12)}
+    ${eyes(50,32,4.5)}<path d="M45 39 Q50 42 55 39" stroke="#b0104a" stroke-width="1.8" fill="none"/>
+    <circle cx="37" cy="40" r="2.6" fill="none" stroke="#f2c14e" stroke-width="1.4"/><circle cx="63" cy="40" r="2.6" fill="none" stroke="#f2c14e" stroke-width="1.4"/>
+    <rect x="78" y="44" width="10" height="16" rx="2" fill="#2a2a32"/><rect x="80" y="46" width="6" height="8" fill="#3cc9d6"/>`),
   secretaire:()=>svgWrap(`<rect width="100" height="70" fill="#ffd7e6"/>${sparkle(90,10,4)}
     <rect x="58" y="22" width="34" height="24" rx="2" fill="#2a2a32"/><rect x="61" y="25" width="28" height="17" fill="#3cc9d6"/>
     <text x="75" y="31" font-family="${FD}" font-size="4.5" text-anchor="middle" fill="#fff">MOT DE PASSE</text>
@@ -577,15 +604,17 @@ const ART={
    ========================================================= */
 function makeDeck(){
   const d=[];let i=0;
-  SUIT_COLORS.forEach((col,k)=>{
-    for(let n=1;n<=10;n++){
-      const type=LAYOUT[n];
+  SUIT_COLORS.forEach(col=>{
+    let o=0;
+    for(let n=1;n<=13;n++){
+      const ex=EXTRAS[col][n];
+      if(ex&&ex[0]==='p'){d.push({id:'c'+(i++),...PERSOS.find(x=>x.pid===ex.slice(2)),kind:'num',color:col,value:n,type:'perso'});continue;}
+      if(ex&&ex[0]==='s'){d.push({id:'c'+(i++),...SPECIALS.find(x=>x.sid===ex.slice(2)),kind:'special',color:col,value:n});continue;}
+      const type=OBJ_ORDER[o++];
       const nmd=NAMED_AT[col+n]||null;
       d.push({id:'c'+(i++),kind:'num',color:col,value:n,type,named:!!nmd,name:nmd});
     }
   });
-  for(const p of PERSOS) d.push({id:'c'+(i++),kind:'num',color:'A',type:'perso',...p});
-  for(const s of SPECIALS) d.push({id:'c'+(i++),kind:'special',...s});
   return d;
 }
 function pts(c){
@@ -617,8 +646,9 @@ function cardHTML(c,o={}){
   if(o.back) return `<div class="card back${mini}"><div class="heart"><span>Fantofesse</span></div></div>`;
   if(c.kind==='special'){
     const p=pts(c);
-    return `<div class="card special${mini}${extra}"${data}>
-      <div class="nt">${c.name}</div>${p?`<div class="pts neg">${p}</div>`:''}
+    const cs=COLORS[c.color];
+    return `<div class="card special${mini}${extra}"${data} style="--bg1:${cs.bg1};--bg2:${cs.bg2};--rib:${cs.rib}">
+      <div class="medal">${c.value}</div><div class="nt">${c.name}</div>${p?`<div class="pts neg" style="top:30px">${p}</div>`:''}
       <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div><div class="ne">${c.effect}</div></div>`;
   }
   const col=COLORS[c.color];
@@ -636,7 +666,7 @@ function cardHTML(c,o={}){
     <div class="ribbon">${c.named?c.name:TYPES[c.type].name}</div><div class="suit">${col.name}</div></div>`;
 }
 function sortHand(h){
-  const key=c=>c.kind==='special'?[2,SPECIALS.findIndex(s=>s.sid===c.sid)]:[c.color==='A'?0:1,(c.color==='A'?-c.value:COLOR_ORDER.indexOf(c.color)*20+c.value)];
+  const key=c=>[0,COLOR_ORDER.indexOf(c.color)*20+c.value];
   h.sort((a,b)=>{const A=key(a),B=key(b);return A[0]-B[0]||A[1]-B[1];});
 }
 
@@ -690,7 +720,7 @@ function log(t,cls=''){G.logs.push({t,cls});if(G.logs.length>160)G.logs.shift();
    RÈGLES : légalité + résolution (fonction pure)
    ========================================================= */
 function ledColorOf(trick){
-  for(const e of trick) if(e.card.kind==='num') return e.card.color;
+  for(const e of trick) if(e.card.color) return e.card.color;
   return null;
 }
 function legalCards(p,trick=G.trick){
@@ -698,22 +728,19 @@ function legalCards(p,trick=G.trick){
   if(trick.length===0) return hand;
   const led=ledColorOf(trick);
   if(!led) return hand;
-  const follow=hand.filter(c=>c.kind==='num'&&c.color===led);
+  const follow=hand.filter(c=>c.color===led);
   return follow.length?follow:hand;
 }
 function resolveTrick(trick,doublage){
   const cards=trick.map(e=>({...e,alive:true,unmasked:false,returned:false,
-    val:e.card.kind==='num'?(doublage&&isPerso(e.card)?0:e.card.value):-1}));
+    val:doublage&&isPerso(e.card)?0:e.card.value}));
   const effects=[],lines=[];let winner,winEntry=null,dfLeader=null;
   const fix=e=>{if(winner===undefined){winner=e?e.p:null;winEntry=e||null;}};
   const get=pid=>cards.find(c=>c.alive&&c.card.pid===pid&&!(pid==='fanto'&&c.unmasked));
   if(winner===undefined){
     let best=null;
-    if(!doublage) for(const c of cards) if(c.alive&&c.card.kind==='num'&&c.card.color==='A'&&(!best||c.val>best.val)) best=c;
-    if(!best){
-      const led=ledColorOf(trick);
-      for(const c of cards) if(c.alive&&c.card.kind==='num'&&c.card.color===led&&(!best||c.val>best.val)) best=c;
-    }
+    const led=ledColorOf(trick);
+    for(const c of cards) if(c.alive&&c.card.color===led&&(!best||c.val>best.val)) best=c;
     if(best){winner=best.p;winEntry=best;}else{winner=trick[0].p;winEntry=null;}
   }
   return {winner,winEntry,cards,effects,lines,dfLeader};
@@ -725,7 +752,7 @@ function resolveTrick(trick,doublage){
 function keepScore(c){
   if(c.pid==='fanto') return 2.2;
   if(c.kind==='special') return c.sid==='camion'?-4:c.sid==='transition'?1:c.sid==='babounia'?0.8:0.5;
-  if(isPerso(c)) return 1.2+c.value*0.2-(c.pid==='copine'?0.6:0);
+  if(isPerso(c)) return 0.6+c.value*0.06+(c.pid==='fanto'?-1:0);
   const p=pts(c);return p<0?p-c.value*0.12:p+c.value*0.08;
 }
 function aiPass(p){return P(p).hand.slice().sort((a,b)=>keepScore(a)-keepScore(b)).slice(0,3);}
@@ -755,8 +782,7 @@ function evalMove(p,c,remaining){
     if(remaining===0) pWin=1;
     else{
       const we=res.winEntry;
-      if(we&&we.card.color==='A') pWin=Math.min(0.95,0.3+we.val*0.065);
-      else if(we) pWin=Math.max(0.05,Math.min(0.85,0.08+we.val*0.08-remaining*0.12));
+      if(we) pWin=Math.max(0.05,Math.min(0.85,0.08+we.val*0.08-remaining*0.12));
       else pWin=0.4;
     }
   }
@@ -769,7 +795,7 @@ function evalMove(p,c,remaining){
   if(cp>0) u-=cp*0.45*(1-pWin);
   if(c.kind==='num'&&cp<0) u+=c.value*0.03*(1-pWin);
   if(c.kind==='num'&&cp>0&&pWin<0.3) u-=c.value*0.02;
-  if(isPerso(c)){u-=0.4+c.value*0.09;u+=powerValue(p,c);}
+  if(isPerso(c)) u+=powerValue(p,c);
   if(c.sid==='babounia') u+=0.5;
   if(c.sid==='camion') u+=0.2;
   if(c.sid==='doublage') u+=0.05;
@@ -885,7 +911,7 @@ async function playTrick(){
 async function onPlay(entry){
   const c=entry.card,pl=P(entry.p),F=G.flags;
   if(isPerso(c)&&c.pid!=='john') await winPower(entry,null);
-  if(c.sid==='doublage'){F.doublage=true;log('Mauvais doublage : dans ce pli, les Personnages ne sont plus atout et valent 0 (leurs effets s’appliquent).','link');}
+  if(c.sid==='doublage'){F.doublage=true;log('Mauvais doublage : dans ce pli, les Personnages valent 0 (leurs effets s’appliquent).','link');}
   if(c.sid==='transition'){F.transition=entry.p;log('Transition ! Le pli se joue jusqu’au bout… puis personne ne le gagnera.','link');}
   if(c.sid==='babounia') await babouniaSwap(entry.p);
   if(c.sid==='camion'){F.camionTaker=await camionRace();log(`« Camion ! » … ${nm(F.camionTaker)} a crié en dernier et récupère la carte (−5).`,'link');}
@@ -1185,8 +1211,8 @@ function render(){
     $('#sendp').onclick=()=>{const sel=ui.sel.map(id=>me.hand.find(c=>c.id===id));const d=ui.done;G.ui={mode:'idle'};d(sel);};
   }else if(ui.mode==='play'){
     const led=ledColorOf(G.trick);
-    const canFollow=led&&me.hand.some(c=>c.kind==='num'&&c.color===led);
-    st.innerHTML=`<span>À toi de jouer${led?` · couleur demandée : <span class="hl">${COLORS[led].name}${led==='A'?' (atout)':''}</span>${canFollow?'':' · tu ne l’as pas : coupe, défausse ou joue une spéciale'}`:G.trick.length?' · pas encore de couleur demandée':' · tu entames'}.</span>`;
+    const canFollow=led&&me.hand.some(c=>c.color===led);
+    st.innerHTML=`<span>À toi de jouer${led?` · couleur demandée : <span class="hl">${COLORS[led].name}</span>${canFollow?'':' · tu ne l’as pas : défausse ce que tu veux'}`:G.trick.length?' · pas encore de couleur demandée':' · tu entames'}.</span>`;
   }else if(G.turn!==null&&G.turn!==0){
     st.innerHTML=`<span style="font-family:'Playfair Display',serif;font-style:italic">${nm(G.turn)} réfléchit… (ou cherche son texte)</span>`;
   }else st.innerHTML='';
@@ -1209,26 +1235,26 @@ function renderLog(){
 /* =========================================================
    GALERIE + RÈGLES
    ========================================================= */
-const GTABS=[['all','Toutes'],['J','Jaune'],['G','Vert'],['B','Bleu'],['R','Rouge'],['A','Violet · Atouts'],['special','Spéciales']];
+const GTABS=[['all','Toutes'],['J','Jaune'],['G','Vert'],['B','Bleu'],['R','Rouge'],['perso','Personnages'],['special','Spéciales']];
 const LINKS_OF={fanto:'3, 4, 5, 6, 7',john:'2, 4, 5',flic:'2, 3',darlene:'8, 9, 11',agent:'11',rodrigo:'1, 7, 8',peintre:'10',copine:'1, 4, 6',joanne:'9, 10',secretaire:'aucun'};
 function cardCaption(c){
   const sc=SCENES.filter(s=>s.reqs.some(r=>r.f(c))).map(s=>s.name);
   const scTxt=sc.length?`<br><i>Scène${sc.length>1?'s':''} : ${sc.join(', ')}</i>`:'';
-  if(c.kind==='special') return `<b>${c.name}</b> · sans couleur<br>${c.effect}${scTxt}`;
-  if(isPerso(c)) return `<b>${c.name}</b> · atout ${c.value}${pts(c)?` · ${pts(c)} PV`:''}<br>${c.power}${scTxt}`;
+  if(c.kind==='special') return `<b>${c.name}</b> · ${COLORS[c.color].name} ${c.value}<br>${c.effect}${scTxt}`;
+  if(isPerso(c)) return `<b>${c.name}</b> · ${COLORS[c.color].name} ${c.value}${pts(c)?` · ${pts(c)} PV`:''}<br>${c.power}${scTxt}`;
   const p=pts(c);
   return `<b>${c.named?c.name:TYPES[c.type].name}</b> · ${COLORS[c.color].name} ${c.value}${p?`<br>${p>0?'+':''}${p} point${Math.abs(p)>1?'s':''}`:''}${scTxt}`;
 }
 function galleryBody(tab){
   const deck=makeDeck();
-  const groups=[['J','Jaune',c=>c.color==='J'],['G','Vert',c=>c.color==='G'],['B','Bleu',c=>c.color==='B'],['R','Rouge',c=>c.color==='R'],['A','Violet · Atouts (Personnages)',c=>c.color==='A'],['special','Cartes spéciales',c=>c.kind==='special']];
+  const groups=[['J','Jaune',c=>c.color==='J'],['G','Vert',c=>c.color==='G'],['B','Bleu',c=>c.color==='B'],['R','Rouge',c=>c.color==='R'],['perso','Personnages',c=>isPerso(c)],['special','Cartes spéciales',c=>c.kind==='special']].filter(g=>tab==='all'?['J','G','B','R'].includes(g[0]):g[0]===tab);
   return groups.filter(g=>tab==='all'||g[0]===tab).map(g=>{
     const cs=deck.filter(g[2]);
     return `<div class="gsec">${g[1]} (${cs.length})</div>`+cs.map(c=>`<div class="gcell">${cardHTML(c)}<div class="cap">${cardCaption(c)}</div></div>`).join('');
   }).join('');
 }
 function showCards(tab='all'){
-  openModal(`<h2>Les 54 cartes</h2><div class="gtabs">${GTABS.map(t=>`<button data-t="${t[0]}" class="${t[0]===tab?'on':''}">${t[1]}</button>`).join('')}</div>
+  openModal(`<h2>Les 52 cartes</h2><div class="gtabs">${GTABS.map(t=>`<button data-t="${t[0]}" class="${t[0]===tab?'on':''}">${t[1]}</button>`).join('')}</div>
     <div class="gal">${galleryBody(tab)}</div><div class="btns"><button class="pink" id="closeG">Fermer</button></div>`);
   $('#mbox').classList.add('wide');
   $('#mbox').querySelectorAll('.gtabs button').forEach(b=>b.onclick=()=>showCards(b.dataset.t));
@@ -1239,17 +1265,16 @@ function rulesHTML(){
 
   return `<div class="rules"><h2>Les règles</h2>
   <p>Jeu de plis et de collection, à obligation de fournir. Les cartes que tu remportes sont posées <b>face visible devant toi</b> : c'est ta collection.</p>
-  <h3>Le paquet : 54 cartes</h3><ul>
-  <li><b>4 couleurs</b> (jaune, vert, bleu, rouge) de 10 cartes, avec la même disposition : 1-2 Tableaux, 3-4 Voitures, 5-6 Statuettes, 7-8 Totems magiques, 9-10 Catamarans.</li>
-  <li><b>L'atout violet</b> : les 10 Personnages, de 1 (la secrétaire) à 10 (Fantofesse).</li>
-  <li><b>4 cartes nommées</b> uniques : le tableau flamand (jaune 2), la statuette préférée de Rodrigo (vert 6), la 6-roues de Marrakech (rouge 4), le catamaran géant (bleu 10).</li>
-  <li><b>4 cartes spéciales</b> sans couleur : Hôtel La Babounia, Transition, Camion !, Mauvais doublage.</li></ul>
+  <h3>Le paquet : 52 cartes</h3><ul>
+  <li><b>4 couleurs</b> (jaune, vert, bleu, rouge) de 13 cartes numérotées 1 à 13. Il n'y a pas d'atout.</li>
+  <li>Chaque couleur contient 2 Tableaux, 2 Voitures à 6 roues, 2 Statuettes, 1 Totem magique, 2 Catamarans, et 4 Personnages ou cartes spéciales, à des numéros différents selon la couleur.</li>
+  <li><b>4 cartes nommées</b> uniques : le tableau flamand (jaune 2), la statuette préférée de Rodrigo (vert 8), le catamaran géant (bleu 13), la 6-roues de Marrakech (rouge 5).</li></ul>
   <h3>Un pli</h3><ul>
-  <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas : coupe avec un atout, défausse n'importe quelle carte, ou joue une carte spéciale.</li>
-  <li>On peut entamer avec n'importe quelle carte. Après une spéciale d'entame, la première carte de couleur fixe la couleur demandée.</li>
-  <li>Le plus fort atout gagne ; sinon la plus forte carte de la couleur demandée. Les spéciales ne gagnent jamais.</li>
+  <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas, défausse la carte de ton choix.</li>
+  <li>La plus forte carte de la couleur demandée gagne le pli.</li>
+  <li>Les Personnages et les cartes spéciales déclenchent leur effet quand on les pose.</li>
   <li>Chaque manche : 5 cartes coupées au Montage (scénario troué), puis 3 cartes passées au voisin.</li></ul>
-  <h3>Les cartes spéciales</h3><ul>${SPECIALS.map(s=>`<li><b>${s.name}</b> : ${s.effect}</li>`).join('')}</ul>
+  <h3>Les cartes spéciales</h3><ul>${makeDeck().filter(c=>c.kind==='special').map(c=>`<li><b>${c.name}</b> (${COLORS[c.color].name} ${c.value}) : ${c.effect}</li>`).join('')}</ul>
   <h3>Points de victoire</h3><ul>
   <li>Tableaux +3 · Voitures +2 · Statuettes +1 · Totems magiques 0 · Catamarans −1.</li>
   <li>Cartes nommées : tableau flamand +1, 6-roues de Marrakech 0, statuette préférée −1, catamaran géant −3. Elles ne paient que dans leur Scène culte.</li>
@@ -1259,7 +1284,7 @@ function rulesHTML(){
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : <b>+${SCENE_PTS}</b> pour son auteur, et tout le monde compte quand même sa collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td></tr>`).join('')}</table>
-  <h3>Les Personnages</h3><p>Les effets « Joué » se déclenchent dès que le Personnage est posé ; les effets « Dans ta collection » comptent en fin de manche. Une icône en haut à droite d'une carte indique les Scènes cultes auxquelles elle sert.</p><ul>${PERSOS.map(p=>`<li><b>${p.value} · ${p.name}</b> : ${p.power}</li>`).join('')}</ul></div>
+  <h3>Les Personnages</h3><p>Les effets « Joué » se déclenchent dès que le Personnage est posé ; les effets « Dans ta collection » comptent en fin de manche. Une icône en haut à droite d'une carte indique les Scènes cultes auxquelles elle sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b> (${COLORS[p.color].name} ${p.value}) : ${p.power}</li>`).join('')}</ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
 function showRules(){openModal(rulesHTML());$('#closeR').onclick=closeModal;}
