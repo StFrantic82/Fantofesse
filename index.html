@@ -340,7 +340,6 @@ const pidIs=p=>c=>c.pid===p;
 const SCENES=[
   {sid:'parking',name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'2 autres Voitures',f:c=>isV(c)&&!c.named,n:2}]},
   {sid:'casse',name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le tableau flamand',f:c=>isT(c)&&c.named},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
-  {sid:'vernissage',name:'Vernissage Micasso',reqs:[{l:'le Peintre',f:pidIs('peintre')},{l:'4 Tableaux',f:isT,n:4}]},
   {sid:'totem',name:'Le totem magique',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'4 Totems',f:isTotem,n:4}]},
   {sid:'affaire',name:'Affaire classée',reqs:[{l:'John',f:pidIs('john')},{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')}]},
   {sid:'diner',name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
@@ -994,7 +993,7 @@ async function winPower(we,won){
     const giant=cs.find(c=>c.named);
     if(giant){
       const keep=pl.human?await ask('Contrôle du port','Garder le catamaran géant de ta collection (utile pour « Le grand déménagement ») ?',[{label:'Le garder',value:true},{label:'Le refiler aussi',value:false,cls:'pink'}])
-        :sceneState(pl.piles,SCENES[6]).have>=1;
+        :sceneState(pl.piles,SCENES.find(x=>x.sid==='demenagement')).have>=1;
       if(keep) cs=cs.filter(c=>c!==giant);
     }
     if(cs.length){
@@ -1230,7 +1229,7 @@ function rulesHTML(){
   <h3>Les cartes spéciales</h3><ul>${SPECIALS.map(s=>`<li><b>${s.name}</b> : ${s.effect}</li>`).join('')}</ul>
   <h3>Points : plus une carte est forte, moins elle rapporte</h3><ul>
   <li>Statuettes : +3 (1 à 3), +2 (4 à 6), +1 (7 à 9), 0 (10). Catamarans et Voitures : −3, −2, −1, 0 selon les mêmes paliers.</li>
-  <li>Tableaux : 0 PV. Ils ne valent que grâce au Peintre (+1 PV par Tableau dans sa collection) et à la Scène Vernissage.</li>
+  <li>Tableaux : 0 PV. Ils ne valent que grâce au Peintre (+1 PV par Tableau dans sa collection).</li>
   <li>Les 4 cartes nommées (tableau flamand, statuette préférée, catamaran géant, 6-roues de Marrakech) : −2 PV. Elles ne paient que dans leur Scène culte.</li>
   <li>Totem magique +1, Camion ! −5, Fantofesse −5, autres Personnages 0.</li><li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (le Camion ne coûte que −2), la secrétaire (+2 avec Fantofesse).</li></ul>
   <h3>Scènes cultes : victoire immédiate de la manche</h3>
