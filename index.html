@@ -632,7 +632,7 @@ function cardHTML(c,o={}){
   }
   const p=pts(c);
   return `<div class="card num${c.named?' named':''}${mini}${extra}"${data} ${st}>
-    <div class="medal">${c.value}</div>${p?`<div class="pts${p<0?' neg':''}">${p>0?'♥ +':''}${p}</div>`:''}
+    <div class="medal">${c.value}</div>${p?`<div class="pts${p<0?' neg':''}">${p>0?'+':''}${p}</div>`:''}
     <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
     <div class="ribbon">${c.named?c.name:TYPES[c.type].name}</div><div class="suit">${col.name}</div></div>`;
 }
