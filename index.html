@@ -130,6 +130,7 @@ header button{font-size:13px;padding:6px 12px}
   font-family:'Abril Fatface',serif;font-size:17px;color:#3a1028;background:radial-gradient(circle at 35% 30%,#fff7c9,#f2c14e 55%,#b07a18);box-shadow:0 0 0 1.5px #6b3f0a,0 2px 4px rgba(0,0,0,.35)}
 .pts{position:absolute;top:6px;right:6px;font-family:'Abril Fatface',serif;font-size:13px;line-height:1;padding:3px 7px;border-radius:999px;z-index:2;
   background:linear-gradient(180deg,#ff8cc0,#ff2d7a);color:#fff;box-shadow:0 0 0 1.5px #fff1b8}
+.pts.zero{background:linear-gradient(180deg,#fff3bf,#d39a2b);color:#3a1028}
 .pts.neg{background:linear-gradient(180deg,#555,#111);color:#ffb0c8}
 .decor{background:linear-gradient(170deg,var(--bg1) 0%,var(--bg2) 78%);color:var(--ink)}
 .decor .art{background:radial-gradient(circle at 50% 35%,var(--sc2),var(--sc));box-shadow:0 0 0 2px #fff6e4,0 0 0 3.5px var(--rib)}
@@ -149,10 +150,11 @@ header button{font-size:13px;padding:6px 12px}
 .perso .pn{position:absolute;left:2px;right:2px;top:103px;text-align:center;font-family:'Pacifico',cursive;font-size:12.5px;line-height:1.05;color:#fff;text-shadow:1px 1px 0 #2d0b55,0 0 6px rgba(0,0,0,.4);z-index:2}
 .perso .pw{position:absolute;left:6px;right:6px;top:125px;text-align:center;font-family:'Playfair Display',serif;font-style:italic;font-size:10px;line-height:1.08;color:#fff1b8;z-index:2}
 .perso .badge{position:absolute;bottom:4px;left:6px;right:6px;background:var(--gold);color:#3a1028;text-align:center;font-weight:700;font-size:11px;border-radius:999px;padding:0 2px;z-index:3}
-.nanar{background:linear-gradient(rgba(18,6,14,.62),rgba(18,6,14,.62)),var(--leo);background-size:auto,46px}
+.nanar{background:linear-gradient(170deg,var(--bg1) 0%,var(--bg2) 78%)}
+.nanar::before{content:'';position:absolute;inset:0;border-radius:13px;box-shadow:inset 0 0 0 5px transparent;background:var(--leo);background-size:30px;-webkit-mask:linear-gradient(#000,#000) top/100% 30px no-repeat;mask:linear-gradient(#000,#000) top/100% 30px no-repeat;opacity:.9}
 .nanar .nt{position:absolute;left:6px;right:6px;top:5px;min-height:20px;border-radius:999px;background:#1a0a12;color:var(--gold);font-family:'Abril Fatface',serif;font-size:10.5px;
   display:flex;align-items:center;justify-content:center;text-align:center;line-height:1;padding:2px 6px;box-shadow:0 0 0 1.5px var(--gold);z-index:2}
-.nanar .art{top:30px;height:66px;background:#fff6e4;box-shadow:0 0 0 2px #1a0a12}
+.nanar .art{top:30px;height:66px;background:#fff6e4;box-shadow:0 0 0 2px #fff6e4,0 0 0 3.5px var(--rib)}
 .nanar .ne{position:absolute;left:6px;right:6px;top:101px;bottom:6px;border-radius:8px;background:rgba(255,246,228,.94);color:var(--ink);
   font-family:'Playfair Display',serif;font-style:italic;font-size:10.5px;line-height:1.1;padding:4px 5px;text-align:center;display:flex;align-items:center;justify-content:center}
 .nanar .pts{top:32px}
@@ -308,23 +310,23 @@ const PERSOS=[
   {pid:'joanne',name:'Joanne',short:'Joanne',force:11,power:'Ne dit presque rien.',quote:'Camion.'}
 ];
 const NANARS=[
-  {nid:'totem',name:'Le Totem magique',effect:'Aucun effet. +3 pour qui le ramasse.'},
+  {nid:'totem',name:'Totem magique',effect:'Aucun effet. +2 pour qui le ramasse. Il y en a un par couleur.'},
   {nid:'babounia',name:'Hôtel La Babounia',effect:'Silence gêné : qui parle ramasse le pli.'},
   {nid:'transition',name:'Transition',effect:'Le pli s’arrête net : tout part au Montage.'},
   {nid:'doublage',name:'Le Doublage',effect:'Deux voix pour tous : Personnages annulés.'},
-  {nid:'ding',name:'Ding, l’ami de Mickey',effect:'Regarde sans réagir. Ne fait rien.'},
   {nid:'camion',name:'Camion !',effect:'Le 1er qui crie « Camion ! » la prend. +2'}
 ];
+const SPECIAL_OF={T:'transition',S:'doublage',C:'babounia',V:'camion'};
 const pidIs=p=>c=>c.pid===p;
 const SCENES=[
   {sid:'parking',name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>c.kind==='decor'&&c.suit==='V'&&c.value===6},{l:'2 autres Voitures',f:c=>c.kind==='decor'&&c.suit==='V'&&c.value!==6,n:2}]},
   {sid:'casse',name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le tableau flamand',f:c=>c.kind==='decor'&&c.suit==='T'&&c.value===10},{l:'la statuette préférée',f:c=>c.kind==='decor'&&c.suit==='S'&&c.value===10}]},
   {sid:'vernissage',name:'Vernissage Micasso',reqs:[{l:'le Peintre',f:pidIs('peintre')},{l:'5 Tableaux',f:c=>c.kind==='decor'&&c.suit==='T',n:5}]},
-  {sid:'croisiere',name:'Croisière au port',reqs:[{l:'l’Agent du port',f:pidIs('agent')},{l:'le catamaran géant',f:c=>c.kind==='decor'&&c.suit==='C'&&c.value===10},{l:'le Totem magique',f:c=>c.nid==='totem'}]},
+  {sid:'croisiere',name:'Croisière au port',reqs:[{l:'l’Agent du port',f:pidIs('agent')},{l:'le catamaran géant',f:c=>c.kind==='decor'&&c.suit==='C'&&c.value===10},{l:'2 Totems',f:c=>c.nid==='totem',n:2}]},
   {sid:'affaire',name:'Affaire classée',reqs:[{l:'John',f:pidIs('john')},{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')}]},
   {sid:'diner',name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:c=>c.kind==='decor'&&c.suit==='S',n:3}]}
 ];
-const SCENE_PTS=15;
+const SCENE_PTS=20;
 const AI_NAMES=['Le Doubleur','La Doubleuse','Le Monteur','La Script'];
 const CHATTER=[
   '« … »','« Ah. »','« Oui. … Oui. »','« Euh… c’est-à-dire que… voilà. »',
@@ -499,25 +501,30 @@ const ART={
    ========================================================= */
 function makeDeck(){
   const d=[];let i=0;
-  for(const s of SUIT_ORDER) for(let v=1;v<=10;v++) d.push({id:'c'+(i++),kind:'decor',suit:s,value:v,named:NAMED[s+v]||null});
+  const N=nid=>NANARS.find(n=>n.nid===nid);
+  for(const s of SUIT_ORDER){
+    for(let v=1;v<=10;v++) d.push({id:'c'+(i++),kind:'decor',suit:s,value:v,named:NAMED[s+v]||null});
+    d.push({id:'c'+(i++),kind:'nanar',suit:s,...N('totem')});
+    d.push({id:'c'+(i++),kind:'nanar',suit:s,...N(SPECIAL_OF[s])});
+  }
   for(const p of PERSOS) d.push({id:'c'+(i++),kind:'perso',...p});
-  for(const n of NANARS) d.push({id:'c'+(i++),kind:'nanar',...n});
   return d;
 }
 function pts(c){
   if(c.kind==='decor'){
-    if(c.suit==='T'||c.suit==='S') return c.value===10?3:1;
-    if(c.suit==='V') return c.value===6?-3:-1;
-    return c.value===10?-3:-1;
+    const tier=c.value===10?0:c.value>=7?1:c.value>=4?2:3;
+    return (c.suit==='T'||c.suit==='S')?tier:-tier;
   }
-  if(c.nid==='totem') return 3;
+  if(c.nid==='totem') return 2;
   if(c.nid==='camion') return 2;
   return 0;
 }
 const isSuit=s=>c=>c.kind==='decor'&&c.suit===s;
+const suitOf=c=>(c.kind==='decor'||c.kind==='nanar')?c.suit:null;
 const isT=isSuit('T'),isS=isSuit('S'),isV=isSuit('V'),isC=isSuit('C');
 function cardName(c){
   if(c.kind==='decor') return c.named?`« ${c.named} »`:`${SUITS[c.suit].name} ${c.value}`;
+  if(c.kind==='nanar') return `${c.name} (${SUITS[c.suit].plural})`;
   return c.name;
 }
 function cardHTML(c,o={}){
@@ -528,7 +535,7 @@ function cardHTML(c,o={}){
   if(c.kind==='decor'){
     const s=SUITS[c.suit];const p=pts(c);
     return `<div class="card decor${c.named?' named':''}${mini}${extra}"${data} style="--sc:${s.sc};--sc2:${s.sc2};--bg1:${s.bg1};--bg2:${s.bg2};--rib:${s.rib};--sl:${s.sl}">
-      <div class="medal">${c.value}</div><div class="pts${p<0?' neg':''}">${p>0?'♥ +':''}${p}</div>
+      <div class="medal">${c.value}</div><div class="pts${p<0?' neg':''}${p===0?' zero':''}">${p>0?'♥ +':''}${p}</div>
       <div class="art">${ART[c.suit](c.value)}</div>
       <div class="ribbon">${c.named||s.name}</div><div class="suit">${s.plural}</div></div>`;
   }
@@ -540,12 +547,13 @@ function cardHTML(c,o={}){
       <div class="pn">${c.name}</div><div class="pw">${c.power}</div>${badge}</div>`;
   }
   const p=pts(c);
-  return `<div class="card nanar${mini}${extra}"${data}>
+  const su=SUITS[c.suit];
+  return `<div class="card nanar${mini}${extra}"${data} style="--bg1:${su.bg1};--bg2:${su.bg2};--rib:${su.rib};--sl:${su.sl}">
     <div class="nt">${c.name}</div>${p?`<div class="pts">♥ +${p}</div>`:''}
-    <div class="art">${ART[c.nid]()}</div><div class="ne">${c.effect}</div></div>`;
+    <div class="art">${ART[c.nid]()}</div><div class="ne">${c.effect.replace(' Il y en a un par couleur.','')}</div></div>`;
 }
 function sortHand(h){
-  const key=c=>c.kind==='perso'?[0,-c.force]:c.kind==='decor'?[1,SUIT_ORDER.indexOf(c.suit)*20+c.value]:[2,NANARS.findIndex(n=>n.nid===c.nid)];
+  const key=c=>c.kind==='perso'?[0,-c.force]:[1,SUIT_ORDER.indexOf(c.suit)*20+(c.kind==='decor'?c.value:11+(c.nid==='totem'?0:1))];
   h.sort((a,b)=>{const A=key(a),B=key(b);return A[0]-B[0]||A[1]-B[1];});
 }
 
@@ -600,15 +608,15 @@ function log(t,cls=''){G.logs.push({t,cls});if(G.logs.length>160)G.logs.shift();
    ========================================================= */
 function ledSuitOf(trick){
   for(const e of trick){
-    if(e.card.kind==='decor') return e.card.suit;
+    if(suitOf(e.card)) return suitOf(e.card);
     if(e.card.pid==='peintre'&&e.mode==='tableau') return 'T';
   }
   return null;
 }
 function legalCards(p,trick=G.trick){
   const hand=P(p).hand;const led=ledSuitOf(trick);
-  const must=led&&hand.some(c=>c.kind==='decor'&&c.suit===led);
-  let cards=hand.filter(c=>c.kind!=='decor'||!must||c.suit===led);
+  const must=led&&hand.some(c=>suitOf(c)===led);
+  let cards=hand.filter(c=>!suitOf(c)||!must||suitOf(c)===led);
   if(trick.length===0){const nc=cards.filter(c=>c.pid!=='copine');if(nc.length)cards=nc;}
   return cards;
 }
@@ -667,6 +675,7 @@ function resolveTrick(trick,doublage){
         if(!c.alive)continue;
         let s=null,v=0;
         if(c.card.kind==='decor'){s=c.card.suit;v=c.card.value;}
+        else if(c.card.kind==='nanar'){s=c.card.suit;v=0;}
         else if(c.card.pid==='peintre'&&c.mode==='tableau'){s='T';v=c.value;}
         if(s&&s===led&&(!bd||v>bd.v))bd={c,v};
       }
@@ -1146,7 +1155,8 @@ function collHTML(p){
     out.push(`<span class="chip${named.length?' star':''}" style="--c:${SUITS[s].chip};--t:${SUITS[s].t}">${SUITS[s].plural} ×${cs.length}${named.length?' ★':''}</span>`);
   }
   for(const c of piles.filter(c=>c.kind==='perso')) out.push(`<span class="chip p">${c.short}</span>`);
-  for(const c of piles.filter(c=>c.kind==='nanar')) out.push(`<span class="chip n">${c.name}</span>`);
+  const nn={};for(const c of piles.filter(c=>c.kind==='nanar')) nn[c.name]=(nn[c.name]||0)+1;
+  for(const k in nn) out.push(`<span class="chip n">${k}${nn[k]>1?' ×'+nn[k]:''}</span>`);
   return out.join('');
 }
 function threatOf(p){
@@ -1227,10 +1237,14 @@ function rulesHTML(){
   <p>Jeu de plis et de collection. Les cartes que tu remportes sont posées <b>face visible devant toi</b> : c'est ta collection, que tout le monde voit.</p>
   <h3>Gagner une manche</h3><ul>
   <li><b>Scène culte</b> : dès qu'une collection réunit une des 6 combinaisons, la manche s'arrête net. Son auteur marque <b>+${SCENE_PTS}</b>, les autres 0.</li>
-  <li>Sinon, en fin de manche : Tableaux et Statuettes +1 (+3 pour les cartes nommées), Voitures et Catamarans −1 (−3 pour les cartes nommées), Totem +3, Camion +2.</li></ul>
+  <li>Sinon, en fin de manche : plus une carte est forte, moins elle compte : Tableaux et Statuettes valent +3 (1 à 3), +2 (4 à 6), +1 (7 à 9), 0 (10) ; Catamarans et Voitures coûtent −3, −2, −1, 0 selon les mêmes paliers. Chaque Totem +2, Camion +2.</li></ul>
+  <h3>Les 5 couleurs</h3><ul>
+  <li>4 couleurs de 12 cartes : jaune (Tableaux), vert (Statuettes), bleu (Catamarans), rouge (Voitures). Chacune contient les nombres 1 à 10, un Totem magique et une carte Nanar : Transition (jaune), Doublage (vert), Hôtel La Babounia (bleu), Camion ! (rouge).</li>
+  <li>Totems et cartes Nanar appartiennent à leur couleur : ils servent à fournir, valent 0 dans le pli et déclenchent leur effet quand on les joue.</li>
+  <li>La 5e couleur, violette, ce sont les 9 Personnages : des atouts.</li></ul>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th></tr>${SCENES.map(s=>`<tr><td>${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td></tr>`).join('')}</table>
   <h3>Un pli</h3><ul>
-  <li>Fournis la famille demandée si tu peux. Un Personnage ou une carte Nanar peut toujours être joué à la place.</li>
+  <li>Fournis la couleur demandée si tu peux (nombre, Totem ou carte Nanar de cette couleur). Un Personnage peut toujours être joué à la place.</li>
   <li>Sinon, défausse ce que tu veux : c'est le moment de refiler une Voiture.</li>
   <li>Le Personnage le plus fort gagne ; sinon la plus haute carte de la famille demandée. La Copine ne peut pas entamer.</li>
   <li>Chaque manche : 5 cartes coupées au Montage (scénario troué), puis 3 cartes passées au voisin.</li></ul>
@@ -1241,25 +1255,25 @@ function rulesHTML(){
   <li>Camion ! : un réflexe à cliquer au signal. Faux départ = disqualifié.</li></ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
-const GTABS=[['all','Toutes'],['T','Tableaux'],['S','Statuettes'],['C','Catamarans'],['V','Voitures'],['perso','Personnages'],['nanar','Cartes Nanar']];
+const GTABS=[['all','Toutes'],['T','Jaune · Tableaux'],['S','Vert · Statuettes'],['C','Bleu · Catamarans'],['V','Rouge · Voitures'],['perso','Violet · Personnages']];
 const LINKS_OF={fanto:'3, 4, 5, 6, 7',john:'2, 4, 5',flic:'2, 3',darlene:'8, 9, 11',agent:'11',rodrigo:'1, 7, 8',peintre:'10',copine:'1, 4, 6',joanne:'9, 10'};
 function cardCaption(c){
   const sc=SCENES.filter(s=>s.reqs.some(r=>r.f(c))).map(s=>s.name);
   const scTxt=sc.length?`<br><i>Scène${sc.length>1?'s':''} : ${sc.join(', ')}</i>`:'';
   if(c.kind==='decor'){const p=pts(c);return `<b>${c.named||SUITS[c.suit].name+' '+c.value}</b><br>${p>0?'+':''}${p} point${Math.abs(p)>1?'s':''}${scTxt}`;}
   if(c.kind==='perso') return `<b>${c.name}</b> · force ${c.force}<br>${c.power}<br>Liens n° ${LINKS_OF[c.pid]}${scTxt}`;
-  const p=pts(c);return `<b>${c.name}</b><br>${c.effect}${p?'':''}${scTxt}`;
+  return `<b>${c.name}</b> · carte ${SUITS[c.suit].plural}<br>${c.effect.replace(' Il y en a un par couleur.','')}<br>Valeur 0 dans le pli : elle sert à fournir.${scTxt}`;
 }
 function galleryBody(tab){
   const deck=makeDeck();
-  const groups=[['T','Tableaux',c=>isT(c)],['S','Statuettes',c=>isS(c)],['C','Catamarans',c=>isC(c)],['V','Voitures à 6 roues',c=>isV(c)],['perso','Personnages (atouts)',c=>c.kind==='perso'],['nanar','Cartes Nanar',c=>c.kind==='nanar']];
+  const groups=[['T','Jaune · Tableaux',c=>suitOf(c)==='T'],['S','Vert · Statuettes',c=>suitOf(c)==='S'],['C','Bleu · Catamarans',c=>suitOf(c)==='C'],['V','Rouge · Voitures à 6 roues',c=>suitOf(c)==='V'],['perso','Violet · Personnages (atouts)',c=>c.kind==='perso']];
   return groups.filter(g=>tab==='all'||g[0]===tab).map(g=>{
     const cs=deck.filter(g[2]);
     return `<div class="gsec">${g[1]} (${cs.length})</div>`+cs.map(c=>`<div class="gcell">${cardHTML(c)}<div class="cap">${cardCaption(c)}</div></div>`).join('');
   }).join('');
 }
 function showCards(tab='all'){
-  openModal(`<h2>Les 55 cartes</h2><div class="gtabs">${GTABS.map(t=>`<button data-t="${t[0]}" class="${t[0]===tab?'on':''}">${t[1]}</button>`).join('')}</div>
+  openModal(`<h2>Les 57 cartes</h2><div class="gtabs">${GTABS.map(t=>`<button data-t="${t[0]}" class="${t[0]===tab?'on':''}">${t[1]}</button>`).join('')}</div>
     <div class="gal">${galleryBody(tab)}</div><div class="btns"><button class="pink" id="closeG">Fermer</button></div>`);
   $('#mbox').classList.add('wide');
   $('#mbox').querySelectorAll('.gtabs button').forEach(b=>b.onclick=()=>showCards(b.dataset.t));
