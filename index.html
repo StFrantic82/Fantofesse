@@ -71,8 +71,11 @@ header button{font-size:13px;padding:6px 12px}
 .opp .backs i{width:18px;height:26px;border-radius:4px;margin-right:-9px;background:var(--leo);background-size:22px;box-shadow:0 0 0 1px #6b3f0a}
 .threat{display:inline-block;margin-top:3px;font-size:14px;background:#ff2d7a;color:#fff;border-radius:999px;padding:0 8px}
 .tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:0 7px;border-radius:999px;background:var(--gold);color:#3a1028;margin-left:5px;vertical-align:middle}
-.coll{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.coll{display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px;margin-top:4px}
 .chip{font-size:13.5px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--c,#555);color:var(--t,#fff);white-space:nowrap}
+.cgrp{display:inline-flex;flex-direction:column;gap:2px;vertical-align:top}
+.cchip{font-size:12.5px;font-weight:600;line-height:1.25;padding:1px 7px;border-radius:999px;background:var(--rc);color:var(--rt);white-space:nowrap}
+.cchip b{font-family:'Abril Fatface',serif;font-weight:400;margin-right:1px}
 .chip.star{box-shadow:0 0 0 1.5px var(--gold2)}
 .chip.p{--c:linear-gradient(90deg,#a05cf0,#5a189a);--t:#fff}
 .chip.n{--c:#1d1d1d;--t:var(--gold)}
@@ -1286,17 +1289,23 @@ function finalText(best){
 /* =========================================================
    RENDU
    ========================================================= */
+function collLabel(c){
+  if(c.pid) return c.short;
+  if(c.kind==='special') return c.name;
+  if(c.named) return SHORT_NAMED[c.type];
+  return c.color==='A'?'Totem':TYPES[c.type].name.replace(' à 6 roues','');
+}
+function collChip(c){
+  const C=COLORS[c.color];const dark=c.color==='J'||c.color==='G';
+  return `<span class="cchip" style="--rc:${C.bg2};--rt:${dark?'#2b1a00':'#fff'}"><b>${c.value}</b> ${collLabel(c)}</span>`;
+}
 function collHTML(p){
   const piles=P(p).piles;if(!piles.length) return '<span class="chip n">collection vide</span>';
-  const out=[];
-  for(const t of ['tab','stat','cat','voit','totem']){
-    const cs=piles.filter(isType(t));if(!cs.length)continue;
-    const named=cs.some(c=>c.named);
-    out.push(`<span class="chip${named?' star':''}" style="--c:${TYPES[t].chip};--t:${TYPES[t].t}">${TYPES[t].plural} ×${cs.length}${named?' ★':''}</span>`);
-  }
-  for(const c of piles.filter(isPerso)) out.push(`<span class="chip p">${c.short}</span>`);
-  for(const c of piles.filter(c=>c.kind==='special')) out.push(`<span class="chip n">${c.name}</span>`);
-  return out.join('');
+  const rank=c=>c.pid?50:c.kind==='special'?60:c.color==='A'?70:({tab:10,stat:20,voit:30,cat:40})[c.type]+(c.named?0:1);
+  const sorted=piles.slice().sort((a,b)=>rank(a)-rank(b)||a.value-b.value);
+  const groups=[];const byKey={};
+  for(const c of sorted){const k=collLabel(c);if(!byKey[k]){byKey[k]=[];groups.push(byKey[k]);}byKey[k].push(c);}
+  return groups.map(g=>`<span class="cgrp">${g.map(collChip).join('')}</span>`).join('');
 }
 function threatOf(p){
   for(const sc of G.active){const s=sceneState(P(p).piles,sc);if(!s.done&&s.need-s.have===1&&s.have>=2) return sc;}
