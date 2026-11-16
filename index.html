@@ -417,7 +417,7 @@ const PTS={tab:[3,0],voit:[-1,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal,
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
   {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Aucun effet.',quote:'Je suis moi.'},
-  {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Pli perdu : pioche 1 carte au gagnant, rends-en 1.',quote:'Camion.'},
+  {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Pioche 1 carte chez un joueur, rends-lui-en 1.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet.',quote:'Mes statuettes ! Mon restaurant !'},
@@ -1101,8 +1101,6 @@ async function finishTrick(){
     render();
     const we=res.winEntry;
     G.leader=taker;
-    const jo=G.trick.find(e=>e.card.pid==='joanne');
-    if(jo&&jo.p!==taker) await joanneSwap(jo.p,taker);
   }
   if(F.john){
     if(F.john.target===taker){P(F.john.p).bonus+=2;log(`Sixième sens de ${nm(F.john.p)} : bingo ! +2.`,'win');}
@@ -1133,6 +1131,14 @@ async function sceneCheck(first){
 async function winPower(we,won){
   const p=we.p,pl=P(p),pid=we.card.pid;
   if(pid==='darlene') await babouniaSwap(p,'Darlène');
+  if(pid==='joanne'){
+    const opts=G.players.filter(q=>q.i!==p&&q.hand.length);
+    if(!opts.length) log('Joanne : personne n\'a de cartes en main.','link');
+    else{
+      const w=pl.human?await ask('Joanne','Dans la main de qui pioches-tu une carte ?',opts.map(q=>({label:`${q.name} (${q.hand.length} cartes)`,value:q.i}))):opts.slice().sort((a,b)=>b.hand.length-a.hand.length)[0].i;
+      await joanneSwap(p,w);
+    }
+  }
   if(pid==='flic'){
     const opts=[];
     for(const q of G.players) if(q.i!==p) for(const c of q.piles) opts.push({q:q.i,c});
