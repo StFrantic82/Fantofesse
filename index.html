@@ -1346,6 +1346,20 @@ $('#hand').addEventListener('click',e=>{const el=e.target.closest('.card');if(el
   const d=makeDeck();const pick=[d.find(c=>c.pid==='darlene'),d.find(c=>isV(c)&&c.named),d.find(c=>c.pid==='fanto'),d.find(c=>isT(c)&&c.named),d.find(c=>c.sid==='camion')];
   $('#fan').innerHTML=pick.map((c,k)=>`<div style="position:absolute;left:50%;top:40px;transform-origin:50% 130%;transform:translateX(-50%) rotate(${(k-2)*13}deg)">${cardHTML(c)}</div>`).join('');
 })();
+
+/* Titres : réduire la police tant que ça déborde */
+function fitTitles(root=document){
+  root.querySelectorAll('.ribbon').forEach(el=>{
+    if(el.dataset.fit) return;
+    let fs=parseFloat(getComputedStyle(el).fontSize);
+    let guard=0;
+    while(el.scrollWidth>el.clientWidth+0.5&&fs>6&&guard++<40){fs-=0.4;el.style.fontSize=fs+'px';}
+    el.dataset.fit='1';
+  });
+}
+let __fitPending=false;
+new MutationObserver(()=>{if(__fitPending)return;__fitPending=true;requestAnimationFrame(()=>{__fitPending=false;fitTitles();});}).observe(document.body,{childList:true,subtree:true});
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{document.querySelectorAll('.ribbon').forEach(e=>{delete e.dataset.fit;e.style.fontSize='';});fitTitles();});
 if(location.hash==='#autotest'){AUTOTEST=true;window.__autotest=async n=>{newGame(n);$('#title').style.display='none';$('#game').style.display='flex';render();await runGame();return window.__scores;};}
 
 </script>
