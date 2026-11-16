@@ -112,6 +112,7 @@ header button{font-size:13px;padding:6px 12px}
 .scene .rq{font-size:12.5px;line-height:1.2;padding:1px 7px;border-radius:999px;background:#fff;color:#3a1028;font-weight:600}
 .scene .rq b.rqn{font-family:'Abril Fatface',serif;font-style:normal;font-weight:400;font-size:12.5px;color:inherit}
 .sreserve{font-size:13px;color:var(--muted);font-style:italic;text-align:center;padding:2px 0 4px}
+.box td .nd{font-size:11.5px;line-height:1.15;color:var(--muted);font-family:'Barlow Condensed',sans-serif;text-align:right}
 .scene .rqou{font-size:12px;color:var(--muted);align-self:center}
 .scene .rq.uniq{background:var(--rc);color:var(--rt,#fff)}
 .scene .rq.ok{background:linear-gradient(180deg,#ffd36b,#f08a1c);color:#3a1028;box-shadow:0 0 0 1.5px #fff3bf}
@@ -416,10 +417,10 @@ const NAMED_FX={'Le tableau flamand':'Collection : {*1} par Tableau.','La statue
 const PTS={tab:[3,0],voit:[-1,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
-  {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Prends 1 carte dans la main d’un joueur, rends-en 1.',quote:'Je suis moi.'},
+  {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Pioche 1 carte chez un joueur, rends-en 1.',quote:'Je suis moi.'},
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Prends 1 carte dans une collection adverse.',quote:'Camion.'},
-  {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
-  {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Vous voulez voir mon totem magique ?'},
+  {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
+  {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 Catamaran de ta collection.',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet.',quote:'Mes statuettes ! Mon restaurant !'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Aucun effet.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Aucun effet.',quote:'Mon pays est plat. C’est ce que j’aime.'},
@@ -1175,6 +1176,12 @@ async function winPower(we,won){
   }
   render();
 }
+const SHORT_NAMED={tab:'Tableau flamand',stat:'Statuette préférée',cat:'Catamaran géant',voit:'6-roues'};
+function namedDetail(piles){
+  const out=[];
+  for(const t of ['tab','stat','cat','voit']) if(piles.some(c=>c.type===t&&c.named)) out.push({n:SHORT_NAMED[t],v:piles.filter(c=>c.type===t).length});
+  return out;
+}
 function collectionBonus(piles){
   const has=f=>piles.some(f);let b=0;
   for(const t of ['tab','stat','cat','voit']) if(has(c=>c.type===t&&c.named)) b+=piles.filter(c=>c.type===t).length;
@@ -1256,9 +1263,9 @@ async function showScores(){
   const final=G.manche>=G.nManches-1;
   const html=`<h2>${final?'Fin du film':'Fin de la manche '+(G.manche+1)}</h2>
     ${G.sceneWin?`<p>Scène culte « ${G.sceneWin.sc.name} » : ${starInl(G.sceneWin.sc.pts)} pour ${esc(nm(G.sceneWin.p))}. Tout le monde compte sa collection.</p>`:''}
-    <table><tr><th>Joueur</th><th>Cartes</th><th>Bonus</th><th>Scène</th><th>Manche</th><th>Total</th></tr>
+    <table><tr><th>Joueur</th><th>Cartes</th><th>Objets spéciaux</th><th>Scène</th><th>Manche</th><th>Total</th></tr>
     ${rows.map(r=>`<tr class="${r.p.total===best?'best':''}"><td>${r.p.name}</td>
-      <td class="n">${r.s.cards}</td><td class="n">${r.s.bonus}</td><td class="n">${r.s.scene||''}</td>
+      <td class="n">${r.s.cards}</td><td class="n">${r.s.bonus}${namedDetail(r.p.piles).length?`<div class="nd">${namedDetail(r.p.piles).map(d=>`${d.n} +${d.v}`).join('<br>')}</div>`:''}</td><td class="n">${r.s.scene||''}</td>
       <td class="n">${r.s.total>0?'+':''}${r.s.total}</td><td class="n">${r.p.total}</td></tr>`).join('')}</table>
     ${final?finalText(best):'<p>Nouvelle distribution, nouveau scénario troué.</p>'}`;
   log(final?'— FIN DU FILM —':`Fin de manche ${G.manche+1}.`,'sys');
