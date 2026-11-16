@@ -405,10 +405,10 @@ const PTS={tab:[3,0],voit:[0,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, 
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'−5 PV pour qui le ramasse.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
   {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Le peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
-  {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Collection : +2 PV avec le Peintre.',quote:'Camion.'},
+  {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Pli perdu : pioche 1 carte au gagnant, rends-en 1.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Vous voulez voir mon totem magique ?'},
-  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet (pour l’instant).',quote:'Mes statuettes ! Mon restaurant !'},
+  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Collection : +1 PV par Statuette.',quote:'Mes statuettes ! Mon restaurant !'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Collection : +3 avec Rodrigo, +2 avec la préférée.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Prends 1 carte dans une collection adverse.',quote:'Mon pays est plat. C’est ce que j’aime.'},
 ];
@@ -416,7 +416,7 @@ const SPECIALS=[
   {sid:'babounia',short:'La Babounia',name:'Hôtel La Babounia',effect:'Prends 1 carte du Montage et pose-la dans ta collection.'},
   {sid:'transition',short:'Transition',name:'Transition',effect:'Personne ne gagne ce pli : tout est défaussé.'},
   {sid:'camion',short:'Camion !',name:'Camion !',effect:'Tous crient « Camion ! » : le dernier la prend.'},
-  {sid:'doublage',short:'Mauvais doublage',name:'Mauvais doublage',effect:'Dans ce pli, la plus faible carte gagne.'}
+  {sid:'doublage',short:'Mauvais doublage',name:'Mauvais doublage',effect:'Tu attribues ce pli au joueur de ton choix.'}
 ];
 const isType=t=>c=>c.kind==='num'&&c.type===t;
 const isT=isType('tab'),isS=isType('stat'),isC=isType('cat'),isV=isType('voit'),isTotem=isType('totem'),isPerso=isType('perso');
@@ -810,6 +810,11 @@ function pilePts(p,f){return P(p).piles.filter(f).reduce((s,c)=>s+pts(c),0);}
 function sceneGain(p,gain){const base=P(p).piles;return progressValue(base.concat(gain))-progressValue(base);}
 function threatGain(p,gain){let m=0;for(const q of G.players) if(q.i!==p) m=Math.max(m,sceneGain(q.i,gain));return m;}
 function evalMove(p,c,remaining){
+  if(c.sid==='doublage'){
+    if(G.trick.length===0) return -0.3;
+    const tv=trickValue(G.trick);
+    return 0.4+Math.abs(tv)*0.5+threatGain(p,G.trick.map(e=>e.card))*0.3;
+  }
   if(c.sid==='transition'){
     if(G.trick.length===0) return -0.6;
     const tv=trickValue(G.trick);
@@ -821,7 +826,7 @@ function evalMove(p,c,remaining){
   }
   const entry={p,card:c};
   const sim=G.trick.concat([entry]);
-  const doub=G.flags.doublage||c.sid==='doublage';
+  const doub=false;
   const res=resolveTrick(sim,doub);
   const gainCards=res.cards.filter(x=>x.alive&&x.card.sid!=='camion').map(x=>x.card);
   let tv=trickValue(res.cards.filter(x=>x.alive));
@@ -927,7 +932,7 @@ async function playTrick(){
   let start=G.leader,k=0;
   while(!P(start).hand.length&&k<G.n){start=(start+1)%G.n;k++;}
   G.order=[];for(let i=0;i<G.n;i++){const p=(start+i)%G.n;if(P(p).hand.length)G.order.push(p);}
-  G.trick=[];G.flags={doublage:false,transition:null,camionTaker:null,john:null};G.res=null;
+  G.trick=[];G.flags={doublage:false,dub:null,transition:null,camionTaker:null,john:null};G.res=null;
   render();
   for(const p of G.order){
     alive();
@@ -960,7 +965,7 @@ async function playTrick(){
 async function onPlay(entry){
   const c=entry.card,pl=P(entry.p),F=G.flags;
   if(isPerso(c)&&c.pid!=='john') await winPower(entry,null);
-  if(c.sid==='doublage'){F.doublage=true;log('Mauvais doublage : tout s’inverse, la plus faible carte de la couleur demandée gagnera ce pli.','link');}
+  if(c.sid==='doublage'){F.dub=entry.p;log(`Mauvais doublage : ${nm(entry.p)} décidera à qui va ce pli.`,'link');}
   if(c.sid==='transition'){F.transition=entry.p;log('Transition ! Le pli se joue jusqu’au bout… puis personne ne le gagnera.','link');}
   if(c.sid==='babounia') await babouniaGrab(entry.p);
   if(c.sid==='camion'){F.camionTaker=await camionRace();log(`« Camion ! » … ${nm(F.camionTaker)} a crié en dernier et récupère la carte (−5).`,'link');}
@@ -993,6 +998,33 @@ async function babouniaSwap(p,who='Hôtel La Babounia'){
     pl.hand.splice(pl.hand.indexOf(give),1);pl.hand.push(take);sortHand(pl.hand);
     log(`${who} : ${pl.name} fait un échange discret avec le Montage.`,'link');
   }else log(`${who} : ${pl.name} consulte le Montage et ne touche à rien.`,'link');
+  render();
+}
+async function dubChoose(p,cards){
+  const pl=P(p);
+  if(pl.human){
+    return await ask('Mauvais doublage','À qui attribues-tu ce pli ?',G.players.map(q=>({label:q.human?'Moi':q.name,value:q.i})),cards.length?`<div class="cards">${cards.map(c=>cardHTML(c,{mini:true})).join('')}</div>`:'');
+  }
+  const tv=cards.reduce((s,c)=>s+(c.sid==='camion'?0:pts(c)),0);
+  let best=p,bu=-1e9;
+  for(const q of G.players){
+    const g=sceneGain(q.i,cards);
+    const u=q.i===p?tv+g:-(tv+g)*0.6-(q.i===p?0:0);
+    if(u>bu){bu=u;best=q.i;}
+  }
+  return best;
+}
+async function joanneSwap(p,w){
+  const pl=P(p),wh=P(w).hand;
+  if(!wh.length){log(`Joanne : ${nm(w)} n'a plus de cartes en main.`,'link');return;}
+  const take=wh.splice(rand(wh.length),1)[0];pl.hand.push(take);sortHand(pl.hand);
+  if(pl.human) toast(`Joanne : tu pioches ${cardName(take)}`);
+  let give;
+  if(pl.human) give=await pickCard('Joanne',`Tu as pioché ${cardName(take)}. Quelle carte donnes-tu à ${nm(w)} ?`,pl.hand,false);
+  else give=pl.hand.slice().sort((a,b)=>(keepScore(a)+sceneGain(p,[a])*0.3)-(keepScore(b)+sceneGain(p,[b])*0.3))[0];
+  pl.hand.splice(pl.hand.indexOf(give),1);wh.push(give);sortHand(wh);
+  if(P(w).human) toast(`Joanne : tu reçois ${cardName(give)}`);
+  log(`Joanne : ${nm(p)} pioche une carte dans la main de ${nm(w)} et lui en rend une.`,'link');
   render();
 }
 async function finishTrick(){
@@ -1037,7 +1069,8 @@ async function finishTrick(){
   }
   render();
   const won=res.cards.filter(c=>c.alive&&c.card!==(cam&&cam.card)).map(c=>c.card);
-  const taker=res.winner;
+  let taker=res.winner;
+  if(F.dub!=null){taker=await dubChoose(F.dub,won.concat(G.pending));log(`Mauvais doublage : ${nm(F.dub)} attribue le pli à ${taker===F.dub?(P(F.dub).human?'toi-même':'lui-même'):nm(taker)}.`,'link');}
   if(taker===null){
     G.pending.push(...won);
     log(`Le pli reste en double file au centre (${G.pending.length} cartes).`,'win');
@@ -1050,6 +1083,8 @@ async function finishTrick(){
     render();
     const we=res.winEntry;
     G.leader=taker;
+    const jo=G.trick.find(e=>e.card.pid==='joanne');
+    if(jo&&jo.p!==taker) await joanneSwap(jo.p,taker);
   }
   if(F.john){
     if(F.john.target===taker){P(F.john.p).bonus+=2;log(`Sixième sens de ${nm(F.john.p)} : bingo ! +2.`,'win');}
@@ -1112,7 +1147,7 @@ async function winPower(we,won){
 function collectionBonus(piles){
   const has=f=>piles.some(f);let b=0;
   if(has(pidIs('copine'))){if(has(pidIs('rodrigo')))b+=3;if(has(c=>isS(c)&&c.named))b+=2;}
-  if(has(pidIs('joanne'))&&has(pidIs('peintre')))b+=2;
+  if(has(pidIs('rodrigo')))b+=piles.filter(isS).length;
   if(has(pidIs('peintre')))b+=piles.filter(isT).length;
   return b;
 }
@@ -1246,7 +1281,7 @@ function render(){
     return `<div class="slot${cls}">${cardHTML(e.card)}<div class="who">${P(e.p).human?'Toi':P(e.p).name}</div></div>`;
   }).join('')||`<div class="waiting">${G.players.every(p=>!p.hand.length)?'':'En attente du prochain plan…'}</div>`;
   const fl=G.flags||{};
-  $('#tablemeta').innerHTML=`${G.pending.length?`<span>Double file : <b>${G.pending.length}</b> cartes</span>`:''}${fl.doublage?'<span><b>Mauvais doublage</b></span>':''}${fl.transition!=null?'<span><b>Transition</b> : personne ne gagnera</span>':''}${fl.john?`<span>6e sens → <b>${fl.john.target===0&&P(0).human?'toi':nm(fl.john.target)}</b></span>`:''}`;
+  $('#tablemeta').innerHTML=`${G.pending.length?`<span>Double file : <b>${G.pending.length}</b> cartes</span>`:''}${fl.dub!=null?'<span><b>Mauvais doublage</b></span>':''}${fl.transition!=null?'<span><b>Transition</b> : personne ne gagnera</span>':''}${fl.john?`<span>6e sens → <b>${fl.john.target===0&&P(0).human?'toi':nm(fl.john.target)}</b></span>`:''}`;
   const me=P(0);const sc=scoreOf(0);
   $('#me').innerHTML=`<span class="nm">Toi</span><span class="st">Score ${me.total} · cette manche ≈ ${sc.total>0?'+':''}${sc.total}${me.blind||me.blindNext?' · <b>endormi·e à l’éther</b>':''}</span><div class="coll">${collHTML(0)}</div>`;
   const ui=G.ui;
@@ -1343,7 +1378,7 @@ function rulesHTML(){
   <li>Tableaux +3 · Statuettes +1 · Voitures 0 · Totems magiques 0 · Catamarans −3.</li>
   <li>Cartes nommées (le 2 de chaque couleur) : 0 PV. Elles ne paient que dans leur Scène culte.</li>
   <li>Camion ! −5, Fantofesse −5, autres Personnages et spéciales 0.</li>
-  <li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (+2 avec le Peintre).</li></ul>
+  <li>Bonus de collection : le Peintre (+1 par Tableau), Rodrigo (+1 par Statuette), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
   <h3>Scènes cultes</h3>
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
