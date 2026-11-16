@@ -657,7 +657,7 @@ function makeDeck(){
 }
 function pts(c){
   if(c.kind==='num'){
-    if(c.type==='perso') return ({fanto:-5,darlene:-3,john:-1})[c.pid]||0;
+    if(c.type==='perso') return ({fanto:-5})[c.pid]||0;
     return PTS[c.type][c.named?1:0];
   }
   return c.sid==='camion'?-5:0;
@@ -1327,7 +1327,7 @@ function rulesHTML(){
   <h3>Points de victoire</h3><ul>
   <li>Tableaux +3 · Voitures +2 · Statuettes +1 · Catamarans −1 · Totems magiques 0.</li>
   <li>Cartes nommées (le 2 de chaque couleur) : 0 PV. Elles ne paient que dans leur Scène culte.</li>
-  <li>Camion ! −5, Fantofesse −5, Darlène −3, John −1, autres Personnages et spéciales 0.</li>
+  <li>Camion ! −5, Fantofesse −5, autres Personnages et spéciales 0.</li>
   <li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (+2 avec le Peintre).</li></ul>
   <h3>Scènes cultes</h3>
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté), et tout le monde compte quand même sa collection.</p>
