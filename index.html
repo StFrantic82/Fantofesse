@@ -434,16 +434,16 @@ const isType=t=>c=>c.kind==='num'&&c.type===t;
 const isT=isType('tab'),isS=isType('stat'),isC=isType('cat'),isV=isType('voit'),isTotem=isType('totem'),isPerso=isType('perso');
 const pidIs=p=>c=>c.pid===p;
 const SCENES=[
-  {sid:'parking',pts:15,name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'3 Voitures',f:isV,n:3}]},
-  {sid:'casse',pts:25,name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Rodrigo',f:pidIs('rodrigo')},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
-  {sid:'totem',pts:12,name:'Tu veux voir le totem magique ?',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
-  {sid:'affaire',pts:18,name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
-  {sid:'diner',pts:8,name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'3 Statuettes',f:isS,n:3}]},
-  {sid:'demenagement',pts:27,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'2 Catamarans',f:isC,n:2}]},
-  {sid:'portrait',pts:12,name:'Sur ce tableau, je vois ma famille',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Micasso',f:pidIs('peintre')},{l:'2 Tableaux',f:c=>isT(c)&&!c.named,n:2}]},
+  {sid:'parking',pts:16,name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'2 autres Voitures',f:c=>isV(c)&&!c.named,n:2}]},
+  {sid:'casse',pts:24,name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Rodrigo',f:pidIs('rodrigo')},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
+  {sid:'totem',pts:10,name:'Tu veux voir le totem magique ?',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
+  {sid:'affaire',pts:14,name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
+  {sid:'diner',pts:14,name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
+  {sid:'demenagement',pts:25,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'2 Catamarans',f:isC,n:2}]},
+  {sid:'portrait',pts:11,name:'Sur ce tableau, je vois ma famille',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Micasso',f:pidIs('peintre')},{l:'2 Tableaux',f:c=>isT(c)&&!c.named,n:2}]},
   {sid:'soeurs',pts:25,name:'2 sœurs à La Babounia',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'Joanne',f:pidIs('joanne')},{l:'Hôtel La Babounia',f:c=>c.sid==='babounia'}]},
-  {sid:'vernissage',pts:3,name:'Le vernissage',reqs:[{l:'Micasso',f:pidIs('peintre')},{l:'3 Tableaux',f:isT,n:3}]},
-  {sid:'controle',pts:19,name:'Contrôle au port',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'3 Catamarans',f:isC,n:3}]}
+  {sid:'vernissage',pts:23,name:'Le vernissage',reqs:[{l:'Micasso',f:pidIs('peintre')},{l:'la copine',f:pidIs('copine')},{l:'le tableau flamand',f:c=>isT(c)&&c.named}]},
+  {sid:'controle',pts:23,name:'Contrôle au port',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'le flic infiltré',f:pidIs('flic')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]}
 ];
 const SCENE_PTS=15;
 const GOAL=69;
