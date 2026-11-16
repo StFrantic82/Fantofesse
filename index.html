@@ -392,13 +392,13 @@ const TYPES={
 const OBJ_ORDER=['tab','tab','voit','voit','stat','stat','totem','cat','cat'];
 // Personnages (p:) et spéciales (s:) placés dans chaque couleur ; les objets remplissent les autres numéros, dans l'ordre
 const EXTRAS={
-  J:{3:'p:secretaire',8:'p:peintre',11:'s:transition',13:'p:fanto'},
-  G:{2:'s:babounia',5:'p:copine',9:'p:rodrigo',13:'p:john'},
-  B:{4:'p:murielle',7:'p:joanne',10:'s:camion',12:'p:agent'},
-  R:{1:'s:ding',6:'p:flic',11:'s:doublage',13:'p:darlene'}
+  J:{5:'p:secretaire',7:'p:peintre',9:'p:fanto',13:'s:transition'},
+  G:{2:'s:babounia',5:'p:copine',7:'p:rodrigo',9:'p:john'},
+  B:{5:'p:murielle',6:'p:joanne',8:'p:agent',11:'s:camion'},
+  R:{1:'s:ding',6:'p:flic',8:'p:darlene',12:'s:doublage'}
 };
 // Cartes nommées uniques (couleur + valeur)
-const NAMED_AT={J2:'Le tableau flamand',G8:'La statuette préférée de Rodrigo',B13:'Le catamaran géant',R5:'La 6-roues de Marrakech'};
+const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
 const PTS={tab:[3,1],voit:[2,0],stat:[1,-1],totem:[0,0],cat:[-1,-3]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'−5 PV pour qui le ramasse.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
@@ -650,7 +650,7 @@ function makeDeck(){
       if(ex&&ex[0]==='p'){d.push({id:'c'+(i++),...PERSOS.find(x=>x.pid===ex.slice(2)),kind:'num',color:col,value:n,type:'perso'});continue;}
       if(ex&&ex[0]==='s'){d.push({id:'c'+(i++),...SPECIALS.find(x=>x.sid===ex.slice(2)),kind:'special',color:col,value:n});continue;}
       const type=OBJ_ORDER[o++];
-      const nmd=NAMED_AT[col+n]||null;
+      const nmd=(NAMED_BY[col].type===type&&OBJ_ORDER.slice(0,o).filter(t=>t===type).length===2)?NAMED_BY[col].name:null;
       d.push({id:'c'+(i++),kind:'num',color:col,value:n,type,named:!!nmd,name:nmd});
     }
   });
@@ -1304,7 +1304,7 @@ function rulesHTML(){
   <h3>Le paquet : 52 cartes</h3><ul>
   <li><b>4 couleurs</b> (jaune, vert, bleu, rouge) de 13 cartes numérotées 1 à 13. Il n'y a pas d'atout.</li>
   <li>Chaque couleur contient 2 Tableaux, 2 Voitures à 6 roues, 2 Statuettes, 1 Totem magique, 2 Catamarans, et 4 Personnages ou cartes spéciales, à des numéros différents selon la couleur.</li>
-  <li><b>4 cartes nommées</b> uniques : le tableau flamand (jaune 2), la statuette préférée de Rodrigo (vert 8), le catamaran géant (bleu 13), la 6-roues de Marrakech (rouge 5).</li></ul>
+  <li><b>4 cartes nommées</b> uniques : le tableau flamand, la statuette préférée de Rodrigo, le catamaran géant, la 6-roues de Marrakech.</li></ul>
   <h3>Un pli</h3><ul>
   <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas, défausse la carte de ton choix.</li>
   <li>La plus forte carte de la couleur demandée gagne le pli.</li>
