@@ -425,8 +425,8 @@ const PERSOS=[
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Prends 1 carte dans une collection adverse.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 Catamaran de ta collection.',quote:'Vous voulez voir mon totem magique ?'},
-  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet.',quote:'Mes statuettes ! Mon restaurant !'},
-  {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Aucun effet.',quote:'…'},
+  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Les Statuettes de ce pli vont dans ta collection.',quote:'Mes statuettes ! Mon restaurant !'},
+  {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Regarde 2 cartes du Montage.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Chacun passe 1 carte à son voisin de gauche.',quote:'Mon pays est plat. C’est ce que j’aime.'},
 ];
 const SPECIALS=[
@@ -1101,6 +1101,12 @@ async function finishTrick(){
   const won=res.cards.filter(c=>c.alive&&c.card!==(cam&&cam.card)).map(c=>c.card);
   let taker=res.winner;
   if(F.dub!=null){taker=await dubChoose(F.dub,won.concat(G.pending));log(`Mauvais doublage : ${nm(F.dub)} attribue le pli à ${taker===F.dub?(P(F.dub).human?'toi-même':'lui-même'):nm(taker)}.`,'link');}
+  const ro=G.trick.find(e=>e.card.pid==='rodrigo');
+  if(ro&&taker!==ro.p){
+    const st=won.filter(isS);
+    if(st.length){for(const c of st) won.splice(won.indexOf(c),1);P(ro.p).piles.push(...st);
+      log(`Mes statuettes ! ${nm(ro.p)} récupère ${st.length>1?st.length+' Statuettes':cardName(st[0])} du pli.`,'link');render();}
+  }
   if(taker===null){
     G.pending.push(...won);
     log(`Le pli reste en double file au centre (${G.pending.length} cartes).`,'win');
@@ -1154,6 +1160,12 @@ async function winPower(we,won){
     G.players.forEach((q,k)=>{const c=gifts[k];if(!c)return;q.hand.splice(q.hand.indexOf(c),1);});
     G.players.forEach((q,k)=>{const c=gifts[k];if(!c)return;const to=P((k+1)%G.n);to.hand.push(c);sortHand(to.hand);if(to.human)toast(`Le flic : tu reçois ${cardName(c)}`);});
     log('Le flic infiltré : chacun passe 1 carte de sa main à son voisin de gauche.','link');
+  }
+  if(pid==='copine'){
+    const top=G.montage.slice(-2);
+    if(!top.length) log('La copine de Rodrigo jette un œil au Montage… vide.','link');
+    else{log(`La copine de Rodrigo : ${pl.human?'tu regardes':pl.name+' regarde'} ${top.length} carte${top.length>1?'s':''} du Montage.`,'link');
+      if(pl.human) await info('La copine de Rodrigo','Voici 2 cartes du Montage :',top);}
   }
   if(pid==='fanto'){G.totemsShown=true;const t=G.players.map(q=>`${q.human?'toi':q.name} : ${q.hand.filter(c=>c.color==='A').map(c=>c.value).join(', ')||'aucun'}`).join(' · ');log(`Fantofesse : tout le monde révèle ses Totems magiques (${t}).`,'link');}
   if(pid==='peintre'){
@@ -1445,7 +1457,7 @@ function rulesHTML(){
   <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (selon sa difficulté et la valeur des cartes qu'elle oblige à ramasser), puis <b>tout le monde</b> compte sa collection, auteur compris.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.slice().sort((a,b)=>a.pts-b.pts).map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>${starInl(s.pts)}</td></tr>`).join('')}</table>
-  <h3>Les Personnages</h3><p>Les Personnages en 5 ont un effet immédiat, appliqué dès qu'on les pose. Ceux en 8 n'ont pas d'effet : ils servent aux Scènes cultes. Tous valent 0 PV. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).sort((a,b)=>a.value-b.value||COLOR_ORDER.indexOf(a.color)-COLOR_ORDER.indexOf(b.color)).map(p=>`<li><b>${p.name}</b> (${p.value} ${COLORS[p.color].name.toLowerCase()}) : ${fx(p.power)}</li>`).join('')}</ul></div>
+  <h3>Les Personnages</h3><p>Chaque Personnage a un effet, appliqué dès qu'on le pose. Ceux en 5 ont un effet fort, ceux en 8 un effet léger ; ces derniers servent surtout aux Scènes cultes. Tous valent 0 PV. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).sort((a,b)=>a.value-b.value||COLOR_ORDER.indexOf(a.color)-COLOR_ORDER.indexOf(b.color)).map(p=>`<li><b>${p.name}</b> (${p.value} ${COLORS[p.color].name.toLowerCase()}) : ${fx(p.power)}</li>`).join('')}</ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
 function showRules(){openModal(rulesHTML());$('#closeR').onclick=closeModal;}
