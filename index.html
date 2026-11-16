@@ -768,7 +768,9 @@ function legalCards(p,trick=G.trick){
   const led=ledColorOf(trick);
   if(!led) return hand;
   const follow=hand.filter(c=>c.color===led);
-  return follow.length?follow:hand;
+  if(follow.length) return follow;
+  const trumps=hand.filter(c=>c.color==='A');
+  return trumps.length?trumps:hand;
 }
 function resolveTrick(trick,doublage){
   const cards=trick.map(e=>({...e,alive:true,unmasked:false,returned:false,
@@ -1316,7 +1318,7 @@ function rulesHTML(){
   <li><b>4 Totems magiques</b> numérotés 1 à 4 : ce sont les <b>atouts</b>.</li>
   <li><b>4 cartes nommées</b>, le 2 de chaque couleur : le tableau flamand (jaune), la statuette préférée de Rodrigo (vert), le catamaran géant (bleu), la 6-roues de Marrakech (rouge).</li></ul>
   <h3>Un pli</h3><ul>
-  <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas, joue la carte de ton choix : un Totem magique pour couper, ou une défausse.</li>
+  <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas, tu dois couper avec un Totem magique. Sans Totem, défausse la carte de ton choix.</li>
   <li>Le plus fort Totem magique gagne le pli. Sans Totem, c'est la plus forte carte de la couleur demandée.</li>
   <li>Les Personnages et les cartes spéciales déclenchent leur effet quand on les pose.</li>
   <li>Chaque manche : 5 cartes coupées au Montage (scénario troué), puis 3 cartes passées au voisin.</li></ul>
