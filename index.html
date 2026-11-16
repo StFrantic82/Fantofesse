@@ -278,7 +278,7 @@ body::before{opacity:.18}
 .card .art,.perso .art,.special .art{left:8px;right:8px;top:28px;height:74px;border-radius:8px}
 .perso .art{box-shadow:none}
 .ribbon{top:107px;left:8px;right:8px;justify-content:center;text-align:center;font-size:12.5px;line-height:1.1;padding:3px 6px}
-.perso .pw,.special .ne{top:133px;left:6px;right:6px;bottom:4px;display:block;text-align:center;font-family:'Playfair Display',serif;font-style:italic;font-size:10px;line-height:1.12;color:#3a1028;background:none;padding:0}
+.perso .pw,.special .ne,.num .pw{position:absolute;top:133px;left:6px;right:6px;bottom:4px;display:block;text-align:center;font-family:'Playfair Display',serif;font-style:italic;font-size:10px;line-height:1.12;color:#3a1028;background:none;padding:0}
 .sicons,.perso .sicons,.special .sicons{top:86px}
 .mini .art,.mini.perso .art,.mini.special .art{top:20px;height:56px}
 .mini .ribbon{top:80px}
@@ -286,7 +286,7 @@ body::before{opacity:.18}
 @media (max-width:980px){
   .card .art,.perso .art,.special .art{top:22px;height:64px}
   .ribbon{top:92px;font-size:11px}
-  .perso .pw,.special .ne{top:118px;font-size:9px}
+  .perso .pw,.special .ne,.num .pw{top:118px;font-size:9px}
   .sicons,.perso .sicons,.special .sicons{top:71px}
 }
 .ribbon.long{font-size:10.5px;letter-spacing:-.2px}
@@ -403,6 +403,7 @@ const EXTRAS={
 };
 // Cartes nommées uniques (couleur + valeur)
 const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
+const NAMED_FX={'Le catamaran géant':'Collection : +1 PV par Catamaran.'};
 const PTS={tab:[3,0],voit:[0,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
@@ -429,7 +430,7 @@ const SCENES=[
   {sid:'totem',pts:10,name:'Tu veux voir le totem magique ?',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
   {sid:'affaire',pts:15,name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
   {sid:'diner',pts:15,name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
-  {sid:'demenagement',pts:25,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]},
+  {sid:'demenagement',pts:20,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'2 Catamarans',f:isC,n:2}]},
   {sid:'portrait',pts:20,name:'Sur ce tableau, je vois ma famille',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Micasso',f:pidIs('peintre')},{l:'2 Tableaux',f:c=>isT(c)&&!c.named,n:2}]},
   {sid:'soeurs',pts:25,name:'2 sœurs à La Babounia',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'Joanne',f:pidIs('joanne')},{l:'Hôtel La Babounia',f:c=>c.sid==='babounia'}]}
 ];
@@ -710,7 +711,7 @@ function cardHTML(c,o={}){
   return `<div class="card num${c.named?' named':''}${mini}${extra}"${data} ${st}>
     <div class="medal">${c.value}</div>${ptsBadge(p)}
     <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
-    ${titleHTML(c.named?({'Le tableau flamand':'Tableau flamand','La statuette préférée de Rodrigo':'Statuette préférée','Le catamaran géant':'Catamaran géant','La 6-roues de Marrakech':'6-roues de Marrakech'}[c.name]||c.name):TYPES[c.type].name)}</div>`;
+    ${titleHTML(c.named?({'Le tableau flamand':'Tableau flamand','La statuette préférée de Rodrigo':'Statuette préférée','Le catamaran géant':'Catamaran géant','La 6-roues de Marrakech':'6-roues de Marrakech'}[c.name]||c.name):TYPES[c.type].name)}${c.named&&NAMED_FX[c.name]?`<div class="pw">${NAMED_FX[c.name]}</div>`:''}</div>`;
 }
 function sortHand(h){
   const key=c=>[0,COLOR_ORDER.indexOf(c.color)*20+c.value];
@@ -1157,6 +1158,7 @@ function collectionBonus(piles){
   if(has(pidIs('copine'))){if(has(pidIs('rodrigo')))b+=3;if(has(c=>isS(c)&&c.named))b+=2;}
   if(has(pidIs('rodrigo')))b+=piles.filter(isS).length;
   if(has(pidIs('peintre')))b+=piles.filter(isT).length;
+  if(has(c=>isC(c)&&c.named))b+=piles.filter(isC).length;
   return b;
 }
 function scoreOf(i){
@@ -1386,7 +1388,7 @@ function rulesHTML(){
   <li>Tableaux +3 · Statuettes +1 · Voitures 0 · Totems magiques 0 · Catamarans −3.</li>
   <li>Cartes nommées (le 2 de chaque couleur) : 0 PV. Elles ne paient que dans leur Scène culte.</li>
   <li>Camion ! −3, Personnages et autres spéciales 0.</li>
-  <li>Bonus de collection : Micasso (+1 par Tableau), Rodrigo (+1 par Statuette), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
+  <li>Bonus de collection : Micasso (+1 par Tableau), Rodrigo (+1 par Statuette), le catamaran géant (+1 par Catamaran), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
   <h3>Scènes cultes</h3>
   <p>Il y a 8 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
   <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
