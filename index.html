@@ -924,7 +924,7 @@ async function runGame(){
 }
 async function playManche(){
   const deck=shuffle(makeDeck());
-  G.montage=[];G.pending=[];G.trick=[];G.sceneWin=null;G.trumpBroken=false;G.totemsShown=false;
+  G.montage=[];G.discard=[];G.pending=[];G.trick=[];G.sceneWin=null;G.trumpBroken=false;G.totemsShown=false;
   if(G.manche>0&&G.sceneDeck.length){const nx=G.sceneDeck.shift();G.active.push(nx);log(`Nouvelle Scène culte révélée : « ${nx.name} ».`,'scn');}
   const per=({3:16,4:12,5:10})[G.n]||Math.floor(deck.length/G.n);
   for(const p of G.players){p.hand=deck.splice(0,per);p.piles=[];p.bonus=0;p.blind=false;p.blindNext=false;sortHand(p.hand);}
@@ -1061,7 +1061,7 @@ async function finishTrick(){
   const cam=G.trick.find(e=>e.card.sid==='camion');
   if(cam) P(F.camionTaker).piles.push(cam.card);
   if(F.transition!==null){
-    G.montage.push(...G.trick.filter(e=>e!==cam).map(e=>e.card));
+    G.discard.push(...G.trick.filter(e=>e!==cam).map(e=>e.card));
     log('Transition : personne ne gagne, toutes les cartes du pli sont défaussées.','win');
     G.leader=G.trick[0].p;
     log(`${nm(G.leader)} avait entamé : il relance le pli suivant.`);
@@ -1199,9 +1199,9 @@ async function winPower(we,won){
     if(!cs.length) log('L’agent du port n’a aucun catamaran à défausser.','link');
     else{
       let c;
-      if(pl.human) c=cs.length===1?cs[0]:await pickCard('Contrôle du port','Défausse 1 Catamaran de ta collection au Montage :',cs,false);
+      if(pl.human) c=cs.length===1?cs[0]:await pickCard('Contrôle du port','Défausse 1 Catamaran de ta collection :',cs,false);
       else{const keepGiant=sceneState(pl.piles,SCENES.find(x=>x.sid==='controle')).have>=1;c=cs.filter(x=>!(keepGiant&&x.named)).sort((x,y)=>pts(x)-pts(y))[0]||cs[0];}
-      pl.piles.splice(pl.piles.indexOf(c),1);G.montage.push(c);
+      pl.piles.splice(pl.piles.indexOf(c),1);G.discard.push(c);
       log(`Contrôle du port : ${pl.name} défausse ${cardName(c)} de sa collection.`,'link');
     }
   }
@@ -1341,7 +1341,7 @@ function threatOf(p){
 }
 function render(){
   if(!G)return;
-  $('#hinfo').textContent=`Manche ${G.manche+1}/${G.nManches} · Montage : ${G.montage.length} cartes`;
+  $('#hinfo').textContent=`Manche ${G.manche+1}/${G.nManches} · Montage : ${G.montage.length} cartes${G.discard&&G.discard.length?` · Défausse : ${G.discard.length}`:''}`;
   $('#opps').innerHTML=G.players.filter(p=>p.i!==0).map(p=>{const th=threatOf(p.i);return `<div class="opp${G.turn===p.i?' turn':''}">
     <div class="nm">${p.name}${G.leader===p.i&&!G.trick.length?'<span class="tag">entame</span>':''}${p.blindNext||p.blind?'<span class="tag">endormi·e</span>':''}</div>
     <div class="st">Score ${p.total} · ${p.hand.length} carte${p.hand.length>1?'s':''} en main</div>
