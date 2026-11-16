@@ -403,7 +403,7 @@ const EXTRAS={
 const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
 const PTS={tab:[3,0],voit:[0,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
 const PERSOS=[
-  {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'−5 PV pour qui le ramasse.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
+  {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
   {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Le peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Pli perdu : pioche 1 carte au gagnant, rends-en 1.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
@@ -658,10 +658,10 @@ function makeDeck(){
 }
 function pts(c){
   if(c.kind==='num'){
-    if(c.type==='perso') return ({fanto:-5})[c.pid]||0;
+    if(c.type==='perso') return 0;
     return PTS[c.type][c.named?1:0];
   }
-  return c.sid==='camion'?-5:0;
+  return c.sid==='camion'?-3:0;
 }
 function cardName(c){
   if(c.kind==='special') return c.name;
@@ -799,8 +799,7 @@ function resolveTrick(trick,doublage){
    IA
    ========================================================= */
 function keepScore(c){
-  if(c.pid==='fanto') return 2.2;
-  if(c.kind==='special') return c.sid==='camion'?-4:c.sid==='transition'?1:c.sid==='babounia'?0.8:0.5;
+    if(c.kind==='special') return c.sid==='camion'?-2.5:c.sid==='transition'?1:c.sid==='babounia'?0.8:0.5;
   if(isPerso(c)) return 0.6+c.value*0.06+(c.pid==='fanto'?-1:0);
   const p=pts(c);return p<0?p-c.value*0.12:p+c.value*0.08;
 }
@@ -968,7 +967,7 @@ async function onPlay(entry){
   if(c.sid==='doublage'){F.dub=entry.p;log(`Mauvais doublage : ${nm(entry.p)} décidera à qui va ce pli.`,'link');}
   if(c.sid==='transition'){F.transition=entry.p;log('Transition ! Le pli se joue jusqu’au bout… puis personne ne le gagnera.','link');}
   if(c.sid==='babounia') await babouniaGrab(entry.p);
-  if(c.sid==='camion'){F.camionTaker=await camionRace();log(`« Camion ! » … ${nm(F.camionTaker)} a crié en dernier et récupère la carte (−5).`,'link');}
+  if(c.sid==='camion'){F.camionTaker=await camionRace();log(`« Camion ! » … ${nm(F.camionTaker)} a crié en dernier et récupère la carte (−3).`,'link');}
   render();
 }
 async function babouniaGrab(p){
@@ -1207,7 +1206,7 @@ function camionRace(){
   if(AUTOTEST||!human){const all=ais.length?ais:[{i:0,t:0}];return Promise.resolve(all.sort((a,b)=>b.t-a.t)[0].i);}
   return new Promise(res=>{
     const limit=3200;let over=false,hT=null;const timers=[];const t0=performance.now();
-    openModal(`<h2>Camion !</h2><p>Tout le monde doit crier « Camion ! ». <b>Le dernier</b> récupère la carte (−5). Vite !</p>
+    openModal(`<h2>Camion !</h2><p>Tout le monde doit crier « Camion ! ». <b>Le dernier</b> récupère la carte (−3). Vite !</p>
       <div class="btns"><button class="big pink" id="cbtn" style="min-width:260px">CAMION !</button></div><p id="cmsg" style="min-height:48px"></p>`);
     const msg=$('#cmsg');const shout=[];
     const finish=()=>{if(over)return;over=true;timers.forEach(clearTimeout);
@@ -1377,7 +1376,7 @@ function rulesHTML(){
   <h3>Points de victoire</h3><ul>
   <li>Tableaux +3 · Statuettes +1 · Voitures 0 · Totems magiques 0 · Catamarans −3.</li>
   <li>Cartes nommées (le 2 de chaque couleur) : 0 PV. Elles ne paient que dans leur Scène culte.</li>
-  <li>Camion ! −5, Fantofesse −5, autres Personnages et spéciales 0.</li>
+  <li>Camion ! −3, Personnages et autres spéciales 0.</li>
   <li>Bonus de collection : le Peintre (+1 par Tableau), Rodrigo (+1 par Statuette), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
   <h3>Scènes cultes</h3>
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
