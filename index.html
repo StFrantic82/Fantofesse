@@ -229,8 +229,10 @@ label.fld{display:block;margin:8px 0}label.fld input{display:block;margin-top:4p
 .bar{height:10px;background:rgba(0,0,0,.5);border-radius:999px;overflow:hidden;margin:12px 0}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,#ff2d7a,#f2c14e);width:100%;transition:width linear}
 .big{font-size:24px!important;padding:14px 30px!important}
-.mainbtns{display:flex;gap:10px;flex-wrap:wrap}
-.mainbtns .big{font-size:19px!important;padding:12px 18px!important;flex:1 1 0;min-width:210px;white-space:nowrap}
+.mainbtns{display:flex;gap:10px;align-self:stretch;width:100%;max-width:440px}
+.mainbtns .big{font-size:17px!important;padding:9px 10px!important;flex:1 1 0;min-width:0;white-space:nowrap;line-height:1.15;text-align:center}
+@media (max-width:520px){.mainbtns .big{font-size:15px!important;padding:8px 6px!important}.mainbtns .big small{font-size:11px}}
+.mainbtns .big small{display:block;font-size:12px;opacity:.85;font-style:italic;margin-top:2px}
 .mainbtns .alt{background:linear-gradient(180deg,#b56cff,#6a1fb0)!important;box-shadow:0 0 0 2px #3a0a6e,0 4px 0 #2a0650,0 6px 14px rgba(0,0,0,.4)!important}
 .clap{text-align:center}
 .clap .scn{font-family:'Pacifico',cursive;font-size:40px;margin:6px 0}
@@ -354,7 +356,7 @@ body::before{opacity:.18}
         <button data-n="3">3 joueurs</button><button data-n="4" class="on">4 joueurs</button><button data-n="5">5 joueurs</button>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-top:14px">
-        <div class="mainbtns"><button class="big pink" id="start">♥ Plaisir solitaire</button><button class="big pink alt" id="onlineT">♥ Partie fine en ligne</button></div>
+        <div class="mainbtns"><button class="big pink" id="start">♥ Plaisir solitaire<small>contre les IA</small></button><button class="big pink alt" id="onlineT">♥ Partie fine<small>en ligne, entre amis</small></button></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="ghost" id="tutoT">Tutoriel</button><button class="ghost" id="rulesT">Les règles</button><button class="ghost" id="cardsT">Les cartes</button></div>
       </div>
       <p class="credit">D'après <i>2 sœurs à en (bip)er</i> (Art of Love, 1998) et <a href="https://www.nanarland.com/chroniques/aux-portes-du-nanar/erotique/2-soeurs-a-en-bip-er.html" target="_blank" rel="noopener">sa chronique sur Nanarland</a>. Cartes dessinées pour ce jeu.</p>
