@@ -315,14 +315,10 @@ body::before{opacity:.18}
     <div>
       <h1 class="gold-text">Fantofesse&nbsp;!</h1>
       <div class="sub">le jeu de plis à en (bip)er</div>
-      <p>Un jeu de plis à 4 couleurs, sans atout. Expose ta collection devant toi et réunis une <b style="color:var(--gold2)">Scène culte</b> pour couper la manche net et empocher 15 PV. Plus une carte est forte, moins elle rapporte.</p>
+      <p>Un jeu de plis à 4 couleurs et 4 Totems magiques en atout. Expose ta collection devant toi et réunis une <b style="color:var(--gold2)">Scène culte</b> pour couper la manche net et empocher de 10 à 25 PV. Plus une carte est forte, moins elle rapporte.</p>
       <div class="lbl">Nombre de joueurs</div>
       <div class="opts" id="optN">
         <button data-n="3">3 joueurs</button><button data-n="4" class="on">4 joueurs</button><button data-n="5">5 joueurs</button>
-      </div>
-      <div class="lbl">Vitesse de lecture</div>
-      <div class="opts" id="optS">
-        <button data-s="1.4">Ralenti</button><button data-s="1" class="on">Normale</button><button data-s="0.5">Avance rapide</button>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
         <button class="big pink" id="start">♥ Moteur… Action !</button>
@@ -1350,7 +1346,7 @@ function startGame(n){
 }
 function goHome(){if(G)G.run=-1;G=null;CUR=-2;closeModal();$('#game').style.display='none';$('#title').style.display='flex';}
 document.querySelectorAll('#optN button').forEach(b=>b.onclick=()=>{optN=+b.dataset.n;document.querySelectorAll('#optN button').forEach(x=>x.classList.toggle('on',x===b));});
-document.querySelectorAll('#optS button').forEach(b=>b.onclick=()=>{SPEED=+b.dataset.s;document.querySelectorAll('#optS button').forEach(x=>x.classList.toggle('on',x===b));});
+
 $('#start').onclick=()=>startGame(optN);
 $('#rulesT').onclick=showRules;$('#rulesG').onclick=showRules;$('#cardsT').onclick=()=>showCards();$('#cardsG').onclick=()=>showCards();
 $('#quit').onclick=async()=>{const r=await ask('Quitter le tournage ?','La partie en cours sera perdue.',[{label:'Quitter',value:1},{label:'Continuer',value:0,cls:'pink'}]);if(r)goHome();};
