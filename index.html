@@ -1406,13 +1406,13 @@ function rulesHTML(){
   <li>Tableaux +3 · Statuettes +1 · Totems magiques 0 · Voitures −1 · Catamarans −3.</li>
   <li>Objets spéciaux : 0 PV, mais chacun rapporte 1 PV par carte de sa famille dans ta collection (lui compris).</li>
   <li>Camion ! −3, Personnages et autres spéciales 0.</li>
-  <li>Bonus de collection : chaque objet spécial (+1 par carte de sa famille).</li></ul>
+</ul>
   <h3>Scènes cultes</h3>
   <p>Il y a 10 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
-  <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène, puis <b>tout le monde</b> compte sa collection, auteur compris.</p>
+  <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (selon sa difficulté et la valeur des cartes qu'elle oblige à ramasser), puis <b>tout le monde</b> compte sa collection, auteur compris.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
-  <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>${starInl(s.pts)}</td></tr>`).join('')}</table>
-  <h3>Les Personnages</h3><p>Les effets s'appliquent dès que le Personnage est posé, sauf les effets « Collection » qui comptent en fin de manche. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b>${pts(p)?` ${starInl(pts(p))}`:''} : ${fx(p.power)}</li>`).join('')}</ul></div>
+  <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.slice().sort((a,b)=>a.pts-b.pts).map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>${starInl(s.pts)}</td></tr>`).join('')}</table>
+  <h3>Les Personnages</h3><p>Les Personnages en 5 ont un effet immédiat, appliqué dès qu'on les pose. Ceux en 8 n'ont pas d'effet : ils servent aux Scènes cultes. Tous valent 0 PV. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).sort((a,b)=>a.value-b.value||COLOR_ORDER.indexOf(a.color)-COLOR_ORDER.indexOf(b.color)).map(p=>`<li><b>${p.name}</b> (${p.value} ${COLORS[p.color].name.toLowerCase()}) : ${fx(p.power)}</li>`).join('')}</ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
 function showRules(){openModal(rulesHTML());$('#closeR').onclick=closeModal;}
