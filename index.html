@@ -924,6 +924,7 @@ async function runGame(){
 async function playManche(){
   const deck=shuffle(makeDeck());
   G.montage=[];G.pending=[];G.trick=[];G.sceneWin=null;G.trumpBroken=false;
+  if(G.manche>0&&G.sceneDeck.length){const nx=G.sceneDeck.shift();G.active.push(nx);log(`Nouvelle Scène culte révélée : « ${nx.name} ».`,'scn');}
   const per=({3:16,4:12,5:10})[G.n]||Math.floor(deck.length/G.n);
   for(const p of G.players){p.hand=deck.splice(0,per);p.piles=[];p.bonus=0;p.blind=false;p.blindNext=false;sortHand(p.hand);}
   G.montage.push(...deck);
@@ -1127,7 +1128,6 @@ async function sceneCheck(first){
   G.sceneWin=w;
   log(`★ SCÈNE CULTE : « ${w.sc.name} » pour ${nm(w.p)} ! Clap de fin, la manche s'arrête.`,'scn');
   G.active.splice(G.active.indexOf(w.sc),1);
-  if(G.sceneDeck.length){const nx=G.sceneDeck.shift();G.active.push(nx);log(`Nouvelle Scène culte révélée : « ${nx.name} ».`,'scn');}
   render();
   if(!AUTOTEST) await new Promise(res=>{
     openModal(`<div class="clap"><h2>Clap de fin !</h2><div class="scn gold-text">« ${w.sc.name} »</div>
@@ -1426,7 +1426,7 @@ function rulesHTML(){
   <li>Camion ! −3, Personnages et autres spéciales 0.</li>
 </ul>
   <h3>Scènes cultes</h3>
-  <p>Il y a 10 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
+  <p>Il y a 10 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Au début de chaque manche suivante, on en révèle une nouvelle. Une Scène réalisée est retirée du jeu.</p>
   <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (selon sa difficulté et la valeur des cartes qu'elle oblige à ramasser), puis <b>tout le monde</b> compte sa collection, auteur compris.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.slice().sort((a,b)=>a.pts-b.pts).map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>${starInl(s.pts)}</td></tr>`).join('')}</table>
