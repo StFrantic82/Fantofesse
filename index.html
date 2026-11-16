@@ -439,7 +439,7 @@ const SCENES=[
   {sid:'totem',pts:4,name:'Tu veux voir le totem magique ?',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
   {sid:'affaire',pts:7,name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
   {sid:'diner',pts:5,name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
-  {sid:'telephone',pts:6,name:'Le coup de téléphone',reqs:[{l:'Joanne',f:pidIs('joanne')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'1 Statuette',f:isS}]},
+  {sid:'telephone',pts:11,name:'Le coup de téléphone',reqs:[{l:'Joanne',f:pidIs('joanne')},{l:'Rodrigo',f:pidIs('rodrigo')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named}]},
   {sid:'portrait',pts:2,name:'Sur ce tableau, je vois ma famille',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Micasso',f:pidIs('peintre')},{l:'2 Tableaux',f:isT,n:2}]},
   {sid:'soeurs',pts:12,name:'2 sœurs à La Babounia',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'Joanne',f:pidIs('joanne')},{l:'Hôtel La Babounia',f:c=>c.sid==='babounia'}]},
   {sid:'vernissage',pts:11,name:'Le vernissage',reqs:[{l:'Micasso',f:pidIs('peintre')},{l:'la copine',f:pidIs('copine')},{l:'le tableau flamand',f:c=>isT(c)&&c.named}]},
