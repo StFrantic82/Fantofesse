@@ -73,6 +73,7 @@ header button{font-size:13px;padding:6px 12px}
 .tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:0 7px;border-radius:999px;background:var(--gold);color:#3a1028;margin-left:5px;vertical-align:middle}
 .coll{display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px;margin-top:4px}
 .chip{font-size:13.5px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--c,#555);color:var(--t,#fff);white-space:nowrap}
+.rv{font-size:12px;color:var(--muted);font-style:italic;align-self:center}
 .cgrp{display:inline-flex;flex-direction:column;gap:2px;vertical-align:top}
 .cchip{font-size:12.5px;font-weight:600;line-height:1.25;padding:1px 7px;border-radius:999px;background:var(--rc);color:var(--rt);white-space:nowrap}
 .cchip b{font-family:'Abril Fatface',serif;font-weight:400;margin-right:1px}
@@ -419,14 +420,14 @@ const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La
 const NAMED_FX={'Le tableau flamand':'Collection : {*1} par Tableau.','La statuette préférée de Rodrigo':'Collection : {*1} par Statuette.','Le catamaran géant':'Collection : {*1} par Catamaran.','La 6-roues de Marrakech':'Collection : {*1} par Voiture.'};
 const PTS={tab:[3,0],voit:[-1,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
 const PERSOS=[
-  {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
+  {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Tous révèlent leurs Totems en main.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
   {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Pioche 1 carte chez un joueur, rends-en 1.',quote:'Je suis moi.'},
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Prends 1 carte dans une collection adverse.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 Catamaran de ta collection.',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet.',quote:'Mes statuettes ! Mon restaurant !'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Aucun effet.',quote:'…'},
-  {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Aucun effet.',quote:'Mon pays est plat. C’est ce que j’aime.'},
+  {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Chacun passe 1 carte à son voisin de gauche.',quote:'Mon pays est plat. C’est ce que j’aime.'},
 ];
 const SPECIALS=[
   {sid:'babounia',short:'La Babounia',name:'Hôtel La Babounia',effect:'Prends 1 carte du Montage et pose-la dans ta collection.'},
@@ -923,7 +924,7 @@ async function runGame(){
 }
 async function playManche(){
   const deck=shuffle(makeDeck());
-  G.montage=[];G.pending=[];G.trick=[];G.sceneWin=null;G.trumpBroken=false;
+  G.montage=[];G.pending=[];G.trick=[];G.sceneWin=null;G.trumpBroken=false;G.totemsShown=false;
   if(G.manche>0&&G.sceneDeck.length){const nx=G.sceneDeck.shift();G.active.push(nx);log(`Nouvelle Scène culte révélée : « ${nx.name} ».`,'scn');}
   const per=({3:16,4:12,5:10})[G.n]||Math.floor(deck.length/G.n);
   for(const p of G.players){p.hand=deck.splice(0,per);p.piles=[];p.bonus=0;p.blind=false;p.blindNext=false;sortHand(p.hand);}
@@ -1141,6 +1142,20 @@ async function sceneCheck(first){
 async function winPower(we,won){
   const p=we.p,pl=P(p),pid=we.card.pid;
   if(pid==='darlene') await babouniaSwap(p,'Darlène');
+  if(pid==='flic'){
+    const gifts=[];
+    for(const q of G.players){
+      if(!q.hand.length){gifts.push(null);continue;}
+      let c;
+      if(q.human) c=await pickCard('Le flic infiltré',`Quelle carte donnes-tu à ${nm((q.i+1)%G.n)} ?`,q.hand,false);
+      else c=q.hand.slice().sort((a,b)=>(keepScore(a)+sceneGain(q.i,[a])*0.3)-(keepScore(b)+sceneGain(q.i,[b])*0.3))[0];
+      gifts.push(c);
+    }
+    G.players.forEach((q,k)=>{const c=gifts[k];if(!c)return;q.hand.splice(q.hand.indexOf(c),1);});
+    G.players.forEach((q,k)=>{const c=gifts[k];if(!c)return;const to=P((k+1)%G.n);to.hand.push(c);sortHand(to.hand);if(to.human)toast(`Le flic : tu reçois ${cardName(c)}`);});
+    log('Le flic infiltré : chacun passe 1 carte de sa main à son voisin de gauche.','link');
+  }
+  if(pid==='fanto'){G.totemsShown=true;const t=G.players.map(q=>`${q.human?'toi':q.name} : ${q.hand.filter(c=>c.color==='A').map(c=>c.value).join(', ')||'aucun'}`).join(' · ');log(`Fantofesse : tout le monde révèle ses Totems magiques (${t}).`,'link');}
   if(pid==='peintre'){
     const opts=G.players.filter(q=>q.i!==p&&q.hand.length);
     if(!opts.length) log('Micasso : personne n\'a de cartes en main.','link');
@@ -1318,7 +1333,7 @@ function render(){
   $('#opps').innerHTML=G.players.filter(p=>p.i!==0).map(p=>{const th=threatOf(p.i);return `<div class="opp${G.turn===p.i?' turn':''}">
     <div class="nm">${p.name}${G.leader===p.i&&!G.trick.length?'<span class="tag">entame</span>':''}${p.blindNext||p.blind?'<span class="tag">endormi·e</span>':''}</div>
     <div class="st">Score ${p.total} · ${p.hand.length} carte${p.hand.length>1?'s':''} en main</div>
-    <div class="backs">${'<i></i>'.repeat(p.hand.length)}</div>
+    <div class="backs">${'<i></i>'.repeat(p.hand.length)}</div>${G.totemsShown&&p.hand.some(c=>c.color==='A')?`<div class="coll">${p.hand.filter(c=>c.color==='A').map(c=>collChip(c)).join('')}<span class="rv">en main</span></div>`:''}
     <div class="coll">${collHTML(p.i)}</div>${th?`<div class="threat">à 1 carte de « ${th.name} »</div>`:''}</div>`;}).join('');
   const res=G.res;
   $('#trick').innerHTML=G.trick.map((e,k)=>{
