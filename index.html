@@ -389,13 +389,14 @@ const TYPES={
 };
 // Disposition des 10 cartes d'une couleur (nombres 1 à 10), décalée de 2 crans par couleur
 // Même disposition dans chaque couleur : 1-2 Tableaux, 3-4 Voitures, 5-6 Statuettes, 7-8 Totems, 9-10 Catamarans
+const NAMED_POS={J:3,G:2,B:2,R:3};
 const OBJ_ORDER=['tab','tab','voit','voit','stat','stat','cat','cat'];
 // Personnages (p:) et spéciales (s:) placés dans chaque couleur ; les objets remplissent les autres numéros, dans l'ordre
 const EXTRAS={
-  J:{1:'s:transition',6:'p:joanne',8:'p:fanto'},
+  J:{1:'s:transition',2:'p:joanne',8:'p:fanto'},
   G:{1:'s:babounia',5:'p:copine',7:'p:rodrigo'},
   B:{1:'s:camion',6:'p:agent',8:'p:peintre'},
-  R:{1:'s:doublage',5:'p:flic',7:'p:darlene'}
+  R:{1:'s:doublage',2:'p:darlene',6:'p:flic'}
 };
 // Cartes nommées uniques (couleur + valeur)
 const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
@@ -420,12 +421,12 @@ const isType=t=>c=>c.kind==='num'&&c.type===t;
 const isT=isType('tab'),isS=isType('stat'),isC=isType('cat'),isV=isType('voit'),isTotem=isType('totem'),isPerso=isType('perso');
 const pidIs=p=>c=>c.pid===p;
 const SCENES=[
-  {sid:'parking',name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'2 autres Voitures',f:c=>isV(c)&&!c.named,n:2}]},
-  {sid:'casse',name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le tableau flamand',f:c=>isT(c)&&c.named},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
-  {sid:'totem',name:'Le totem magique',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
-  {sid:'affaire',name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
-  {sid:'diner',name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
-  {sid:'demenagement',name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]}
+  {sid:'parking',pts:10,name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'2 autres Voitures',f:c=>isV(c)&&!c.named,n:2}]},
+  {sid:'casse',pts:20,name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le tableau flamand',f:c=>isT(c)&&c.named},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
+  {sid:'totem',pts:10,name:'Le totem magique',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
+  {sid:'affaire',pts:15,name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
+  {sid:'diner',pts:15,name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
+  {sid:'demenagement',pts:25,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]}
 ];
 const SCENE_PTS=15;
 const GOAL=69;
@@ -646,7 +647,7 @@ function makeDeck(){
       const ex=EXTRAS[col][n];
       if(ex&&ex[0]==='p'){d.push({id:'c'+(i++),...PERSOS.find(x=>x.pid===ex.slice(2)),kind:'num',color:col,value:n,type:'perso'});continue;}
       if(ex&&ex[0]==='s'){d.push({id:'c'+(i++),...SPECIALS.find(x=>x.sid===ex.slice(2)),kind:'special',color:col,value:n});continue;}
-      if(n===2){d.push({id:'c'+(i++),kind:'num',color:col,value:n,type:NAMED_BY[col].type,named:true,name:NAMED_BY[col].name});continue;}
+      if(n===NAMED_POS[col]){d.push({id:'c'+(i++),kind:'num',color:col,value:n,type:NAMED_BY[col].type,named:true,name:NAMED_BY[col].name});continue;}
       const type=objs[o++];
       d.push({id:'c'+(i++),kind:'num',color:col,value:n,type,named:false,name:null});
     }
@@ -719,7 +720,7 @@ function sceneState(cards,sc){
 }
 function progressValue(cards){
   let v=0;
-  for(const sc of SCENES){const s=sceneState(cards,sc);v+=s.done?40:Math.pow(s.have/s.need,2)*6;}
+  for(const sc of SCENES){const s=sceneState(cards,sc);const w=sc.pts/15;v+=s.done?40*w:Math.pow(s.have/s.need,2)*6*w;}
   return v;
 }
 function checkScenes(first){
@@ -1064,7 +1065,7 @@ async function sceneCheck(first){
     openModal(`<div class="clap"><h2>Clap de fin !</h2><div class="scn gold-text">« ${w.sc.name} »</div>
       <p>${P(w.p).human?'Tu réunis':esc(nm(w.p))+' réunit'} ${w.sc.reqs.map(r=>r.l).join(', ')}.</p>
       <div class="cards" style="justify-content:center">${P(w.p).piles.filter(c=>w.sc.reqs.some(r=>r.f(c))).slice(0,6).map(c=>cardHTML(c,{mini:true})).join('')}</div>
-      <p>La manche s'arrête : <b>+${SCENE_PTS}</b> pour ${P(w.p).human?'toi':esc(nm(w.p))}, et chacun compte quand même sa collection.</p>
+      <p>La manche s'arrête : <b>+${w.sc.pts}</b> pour ${P(w.p).human?'toi':esc(nm(w.p))}, et chacun compte quand même sa collection.</p>
       <div class="btns" style="justify-content:center"><button class="pink" id="okc">Voir les scores</button></div></div>`);
     $('#okc').onclick=()=>{closeModal();res();};
   });
@@ -1114,7 +1115,7 @@ function scoreOf(i){
   const p=P(i);
   let cards=0;for(const c of p.piles) cards+=pts(c);
   const bonus=collectionBonus(p.piles)+p.bonus;
-  const scene=G.sceneWin&&G.sceneWin.p===i?SCENE_PTS:0;
+  const scene=G.sceneWin&&G.sceneWin.p===i?G.sceneWin.sc.pts:0;
   return {cards,bonus,scene,total:cards+bonus+scene};
 }
 
@@ -1184,7 +1185,7 @@ async function showScores(){
   const best=Math.max(...G.players.map(p=>p.total));
   const final=G.manche>=G.nManches-1;
   const html=`<h2>${final?'Fin du film':'Fin de la manche '+(G.manche+1)}</h2>
-    ${G.sceneWin?`<p>Scène culte « ${G.sceneWin.sc.name} » : +${SCENE_PTS} pour ${esc(nm(G.sceneWin.p))}. Tout le monde compte quand même sa collection.</p>`:''}
+    ${G.sceneWin?`<p>Scène culte « ${G.sceneWin.sc.name} » : +${G.sceneWin.sc.pts} pour ${esc(nm(G.sceneWin.p))}. Tout le monde compte quand même sa collection.</p>`:''}
     <table><tr><th>Joueur</th><th>Cartes</th><th>Bonus</th><th>Scène</th><th>Manche</th><th>Total</th></tr>
     ${rows.map(r=>`<tr class="${r.p.total===best?'best':''}"><td>${r.p.name}</td>
       <td class="n">${r.s.cards}</td><td class="n">${r.s.bonus}</td><td class="n">${r.s.scene||''}</td>
@@ -1270,7 +1271,7 @@ function renderScenes(){
   el.innerHTML=SCENES.map(sc=>{
     const s=sceneState(P(0).piles,sc);
     const reqs=sc.reqs.map(r=>{const n=r.n||1;const h=Math.min(n,P(0).piles.filter(r.f).length);return h>=n?`<i>✓ ${r.l}</i>`:`${r.l}${n>1&&h?` (${h}/${n})`:''}`;}).join(' + ');
-    return `<div class="scene${s.need-s.have===1?' hot':''}"><span class="pr">${s.have}/${s.need}</span><span class="sicon inl">${SICON[sc.sid]}</span><b>${sc.name}</b><div class="req">${reqs}</div></div>`;
+    return `<div class="scene${s.need-s.have===1?' hot':''}"><span class="pr">${s.have}/${s.need}</span><span class="sicon inl">${SICON[sc.sid]}</span><b>${sc.name}</b> <small>+${sc.pts}</small><div class="req">${reqs}</div></div>`;
   }).join('');
 }
 function renderLog(){
@@ -1329,9 +1330,9 @@ function rulesHTML(){
   <li>Camion ! −5, Fantofesse −5, Darlène −3, John −1, autres Personnages et spéciales 0.</li>
   <li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (+2 avec le Peintre).</li></ul>
   <h3>Scènes cultes</h3>
-  <p>Dès qu'une collection réunit une Scène, la manche s'arrête : <b>+${SCENE_PTS}</b> pour son auteur, et tout le monde compte quand même sa collection.</p>
+  <p>Dès qu'une collection réunit une Scène, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté), et tout le monde compte quand même sa collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
-  <table><tr><th>Scène culte</th><th>Il faut réunir</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td></tr>`).join('')}</table>
+  <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>+${s.pts}</td></tr>`).join('')}</table>
   <h3>Les Personnages</h3><p>Les effets s'appliquent dès que le Personnage est posé, sauf les effets « Collection » qui comptent en fin de manche. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b>${pts(p)?` (${pts(p)} PV)`:''} : ${p.power}</li>`).join('')}</ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
