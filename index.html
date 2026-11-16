@@ -886,8 +886,8 @@ async function runGame(){
 }
 async function playManche(){
   const deck=shuffle(makeDeck());
-  G.montage=deck.splice(0,5);G.pending=[];G.trick=[];G.sceneWin=null;
-  const per=Math.floor(deck.length/G.n);
+  G.montage=[];G.pending=[];G.trick=[];G.sceneWin=null;
+  const per=({3:16,4:12,5:10})[G.n]||Math.floor(deck.length/G.n);
   for(const p of G.players){p.hand=deck.splice(0,per);p.piles=[];p.bonus=0;p.blind=false;p.blindNext=false;sortHand(p.hand);}
   G.montage.push(...deck);
   log(`— Manche ${G.manche+1}/${G.nManches} — Scénario troué : ${G.montage.length} cartes coupées au montage.`,'sys');
@@ -1322,7 +1322,7 @@ function rulesHTML(){
   <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas, tu dois couper avec un Totem magique. Sans Totem, défausse la carte de ton choix.</li>
   <li>Le plus fort Totem magique gagne le pli. Sans Totem, c'est la plus forte carte de la couleur demandée.</li>
   <li>Les Personnages et les cartes spéciales déclenchent leur effet quand on les pose.</li>
-  <li>Chaque manche : 5 cartes coupées au Montage (scénario troué), puis 3 cartes passées au voisin.</li></ul>
+  <li>Chaque manche : 16 cartes chacun à 3 joueurs, 12 à 4, 10 à 5 ; le reste part face cachée au Montage (scénario troué). Puis 3 cartes passées au voisin.</li></ul>
   <h3>Les cartes spéciales</h3><ul>${makeDeck().filter(c=>c.kind==='special').map(c=>`<li><b>${c.name}</b> : ${c.effect}</li>`).join('')}</ul>
   <h3>Points de victoire</h3><ul>
   <li>Tableaux +3 · Voitures +2 · Statuettes +1 · Catamarans −1 · Totems magiques 0.</li>
