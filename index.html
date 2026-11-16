@@ -297,6 +297,12 @@ body::before{opacity:.18}
 .pv span{position:relative;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;line-height:1;margin-top:3px}
 .pv.pos path{fill:#fff3b0;stroke:#8a5a00;stroke-width:1.4;stroke-linejoin:round}.pv.pos span{color:#5a3a00}
 .pv.neg path{fill:#2a1a24;stroke:#2a1a24;stroke-width:1.4;stroke-linejoin:round}.pv.neg span{color:#fff}
+.pv.inl{position:relative;display:inline-flex;vertical-align:middle;top:auto;right:auto;width:26px;height:26px;margin:-4px 2px}
+.pv.inl span{font-size:12px;margin-top:2px}
+.pv.inl.neg path{stroke:#fff3b0}
+.scene .sright{float:right;display:flex;align-items:center;gap:4px;margin-left:6px}
+.scene .sright .pr{float:none}
+.scene .sright .pv.inl{margin:-3px 0}
 .mini .pv{width:22px;height:22px;top:2px;right:3px}.mini .pv span{font-size:10px;margin-top:2px}
 
 /* ---------- Titres : une ligne, encadré ornementé ---------- */
@@ -686,6 +692,7 @@ function artFor(c){
   return ART.V(c.named?6:1);
 }
 const titleHTML=t=>`<div class="ribbon" style="--fs:${Math.min(12.5,168/t.length).toFixed(2)}"><span>${t}</span></div>`;
+const starInl=p=>ptsBadge(p).replace('class="pv ','class="pv inl ');
 const ptsBadge=p=>p?`<div class="pv ${p>0?'pos':'neg'}"><svg viewBox="0 0 24 24"><path d="M12 1.5 L14.9 8.6 L22.5 9.1 L16.7 14 L18.6 21.6 L12 17.5 L5.4 21.6 L7.3 14 L1.5 9.1 L9.1 8.6Z"/></svg><span>${Math.abs(p)}</span></div>`:'';
 function cardHTML(c,o={}){
   const mini=o.mini?' mini':'';
@@ -1114,7 +1121,7 @@ async function sceneCheck(first){
     openModal(`<div class="clap"><h2>Clap de fin !</h2><div class="scn gold-text">« ${w.sc.name} »</div>
       <p>${P(w.p).human?'Tu réunis':esc(nm(w.p))+' réunit'} ${w.sc.reqs.map(r=>r.l).join(', ')}.</p>
       <div class="cards" style="justify-content:center">${P(w.p).piles.filter(c=>w.sc.reqs.some(r=>r.f(c))).slice(0,6).map(c=>cardHTML(c,{mini:true})).join('')}</div>
-      <p>La manche s'arrête : <b>+${w.sc.pts}</b> pour ${P(w.p).human?'toi':esc(nm(w.p))} (à la place de sa collection). Les autres comptent leur collection.</p>
+      <p>La manche s'arrête : ${starInl(w.sc.pts)} pour ${P(w.p).human?'toi':esc(nm(w.p))} (à la place de sa collection). Les autres comptent leur collection.</p>
       <div class="btns" style="justify-content:center"><button class="pink" id="okc">Voir les scores</button></div></div>`);
     $('#okc').onclick=()=>{closeModal();res();};
   });
@@ -1236,7 +1243,7 @@ async function showScores(){
   const best=Math.max(...G.players.map(p=>p.total));
   const final=G.manche>=G.nManches-1;
   const html=`<h2>${final?'Fin du film':'Fin de la manche '+(G.manche+1)}</h2>
-    ${G.sceneWin?`<p>Scène culte « ${G.sceneWin.sc.name} » : +${G.sceneWin.sc.pts} pour ${esc(nm(G.sceneWin.p))}, qui ne compte pas sa collection. Les autres comptent la leur.</p>`:''}
+    ${G.sceneWin?`<p>Scène culte « ${G.sceneWin.sc.name} » : ${starInl(G.sceneWin.sc.pts)} pour ${esc(nm(G.sceneWin.p))}, qui ne compte pas sa collection. Les autres comptent la leur.</p>`:''}
     <table><tr><th>Joueur</th><th>Cartes</th><th>Bonus</th><th>Scène</th><th>Manche</th><th>Total</th></tr>
     ${rows.map(r=>`<tr class="${r.p.total===best?'best':''}"><td>${r.p.name}</td>
       <td class="n">${r.s.cards}</td><td class="n">${r.s.bonus}</td><td class="n">${r.s.scene||''}</td>
@@ -1330,7 +1337,7 @@ function renderScenes(){
           return `<span class="rq uniq${got?' ok':''}" style="--rc:${C.bg2};--rt:${c.color==='J'?'#3a2400':'#fff'}">${got?'✓ ':''}<b class="rqn">${c.value}</b> ${c.short}</span>`;}).join('<span class="rqou">ou</span>');}
       if(m.length===1){const C=COLORS[cols[0]];return `<span class="rq uniq${ok?' ok':''}" style="--rc:${C.bg2};--rt:${cols[0]==='J'?'#3a2400':'#fff'}">${ok?'✓ ':''}<b class="rqn">${m[0].value}</b> ${r.l}</span>`;}
       return `<span class="rq${ok?' ok':''}">${lbl}</span>`;}).join(' ');
-    return `<div class="scene${s.need-s.have===1?' hot':''}"><span class="pr">${s.have}/${s.need}</span><span class="sicon inl">${SICON[sc.sid]}</span><b>${sc.name}</b> <small>+${sc.pts}</small><div class="req">${reqs}</div></div>`;
+    return `<div class="scene${s.need-s.have===1?' hot':''}"><span class="sright">${starInl(sc.pts)}<span class="pr">${s.have}/${s.need}</span></span><span class="sicon inl">${SICON[sc.sid]}</span><b>${sc.name}</b><div class="req">${reqs}</div></div>`;
   }).join('')+`<div class="sreserve">${G.sceneDeck.length?`${G.sceneDeck.length} Scène${G.sceneDeck.length>1?'s':''} en réserve`:'Plus de Scène en réserve'}</div>`;
 }
 function renderLog(){
@@ -1348,9 +1355,9 @@ function cardCaption(c){
   const sc=SCENES.filter(s=>s.reqs.some(r=>r.f(c))).map(s=>s.name);
   const scTxt=sc.length?`<br><i>Scène${sc.length>1?'s':''} : ${sc.join(', ')}</i>`:'';
   if(c.kind==='special') return `<b>${c.name}</b><br>${c.effect}${scTxt}`;
-  if(isPerso(c)) return `<b>${c.name}</b>${pts(c)?` · ${pts(c)} PV`:''}<br>${c.power}${scTxt}`;
+  if(isPerso(c)) return `<b>${c.name}</b>${pts(c)?` ${starInl(pts(c))}`:''}<br>${c.power}${scTxt}`;
   const p=pts(c);
-  return `<b>${c.named?c.name:TYPES[c.type].name}</b>${p?`<br>${p>0?'+':''}${p} point${Math.abs(p)>1?'s':''}`:''}${scTxt}`;
+  return `<b>${c.named?c.name:TYPES[c.type].name}</b>${p?` ${starInl(p)}`:''}${scTxt}`;
 }
 function galleryBody(tab){
   const deck=makeDeck();
@@ -1393,7 +1400,7 @@ function rulesHTML(){
   <p>Il y a 8 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
   <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
-  <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>+${s.pts}</td></tr>`).join('')}</table>
+  <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>${starInl(s.pts)}</td></tr>`).join('')}</table>
   <h3>Les Personnages</h3><p>Les effets s'appliquent dès que le Personnage est posé, sauf les effets « Collection » qui comptent en fin de manche. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b>${pts(p)?` (${pts(p)} PV)`:''} : ${p.power}</li>`).join('')}</ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
