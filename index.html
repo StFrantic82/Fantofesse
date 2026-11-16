@@ -375,10 +375,10 @@ const COLORS={
   G:{name:'Vert',bg1:'#c6f7d9',bg2:'#169a5c',rib:'#0b5e37',sl:'#e8fff1',sc:'#2fb574',sc2:'#e2fcec'},
   B:{name:'Bleu',bg1:'#cdeeff',bg2:'#1c7fe0',rib:'#0b4596',sl:'#eaf6ff',sc:'#3aa0f0',sc2:'#e4f5ff'},
   R:{name:'Rouge',bg1:'#ffd0cf',bg2:'#de1f29',rib:'#7f0a10',sl:'#fff0f0',sc:'#ef4b52',sc2:'#ffe6e6'},
-  A:{name:'Violet',atout:true,bg1:'#e2c8ff',bg2:'#6a1fb0',rib:'#3a0a6e',sl:'#f3e8ff',sc:'#9b5de5',sc2:'#f1e6ff'}
+  A:{name:'Totems magiques',atout:true,bg1:'#e2c8ff',bg2:'#6a1fb0',rib:'#3a0a6e',sl:'#f3e8ff',sc:'#9b5de5',sc2:'#f1e6ff'}
 };
 const SUIT_COLORS=['J','G','B','R'];
-const COLOR_ORDER=['J','G','B','R'];
+const COLOR_ORDER=['J','G','B','R','A'];
 const TYPES={
   tab:{name:'Tableau',plural:'Tableaux',sign:1,chip:'#e0a514',t:'#3a2400'},
   stat:{name:'Statuette',plural:'Statuettes',sign:1,chip:'#a0522d',t:'#fff'},
@@ -389,30 +389,26 @@ const TYPES={
 };
 // Disposition des 10 cartes d'une couleur (nombres 1 à 10), décalée de 2 crans par couleur
 // Même disposition dans chaque couleur : 1-2 Tableaux, 3-4 Voitures, 5-6 Statuettes, 7-8 Totems, 9-10 Catamarans
-const OBJ_ORDER=['tab','tab','voit','voit','stat','stat','totem','cat','cat'];
+const OBJ_ORDER=['tab','tab','voit','voit','stat','stat','cat','cat'];
 // Personnages (p:) et spéciales (s:) placés dans chaque couleur ; les objets remplissent les autres numéros, dans l'ordre
 const EXTRAS={
-  J:{1:'s:transition',5:'p:secretaire',7:'p:peintre',9:'p:fanto'},
-  G:{1:'s:babounia',5:'p:copine',7:'p:rodrigo',9:'p:john'},
-  B:{1:'s:camion',5:'p:murielle',6:'p:joanne',8:'p:agent'},
-  R:{1:'s:doublage',5:'p:ding',6:'p:flic',8:'p:darlene'}
+  J:{1:'s:transition',6:'p:joanne',8:'p:fanto'},
+  G:{1:'s:babounia',5:'p:copine',7:'p:rodrigo'},
+  B:{1:'s:camion',6:'p:agent',8:'p:peintre'},
+  R:{1:'s:doublage',5:'p:flic',7:'p:darlene'}
 };
 // Cartes nommées uniques (couleur + valeur)
 const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
 const PTS={tab:[3,0],voit:[2,0],stat:[1,0],totem:[0,0],cat:[-1,0]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'−5 PV pour qui le ramasse.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
-  {pid:'john',value:9,name:'John, flic pugnace',short:'John',power:'Aucun effet.',quote:'Mon sixième sens ne me trompe jamais.'},
+  {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Le peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Collection : +2 PV avec le Peintre.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Vous voulez voir mon totem magique ?'},
   {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet (pour l’instant).',quote:'Mes statuettes ! Mon restaurant !'},
-  {pid:'peintre',value:4,name:'Le peintre Micasso',short:'Le peintre',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Collection : +3 avec Rodrigo, +2 avec la préférée.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Prends 1 carte dans une collection adverse.',quote:'Mon pays est plat. C’est ce que j’aime.'},
-  {pid:'ding',name:'Ding, l’ami de Mickey',short:'Ding',power:'Regarde sans réagir. Aucun effet.',quote:'…'},
-  {pid:'murielle',name:'Murielle',short:'Murielle',power:'Aucun effet (pour l’instant).',quote:'Enchantée. … Camion ?'},
-  {pid:'secretaire',value:1,name:'La secrétaire',short:'La secrétaire',power:'Collection : +2 PV avec Fantofesse.',quote:'C’est quoi, déjà, le mot de passe ?'}
 ];
 const SPECIALS=[
   {sid:'babounia',short:'La Babounia',name:'Hôtel La Babounia',effect:'Prends 1 carte du Montage et pose-la dans ta collection.'},
@@ -427,7 +423,7 @@ const SCENES=[
   {sid:'parking',name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'2 autres Voitures',f:c=>isV(c)&&!c.named,n:2}]},
   {sid:'casse',name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le tableau flamand',f:c=>isT(c)&&c.named},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
   {sid:'totem',name:'Le totem magique',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
-  {sid:'affaire',name:'Affaire classée',reqs:[{l:'John',f:pidIs('john')},{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')}]},
+  {sid:'affaire',name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
   {sid:'diner',name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
   {sid:'demenagement',name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]}
 ];
@@ -645,8 +641,8 @@ function makeDeck(){
   const d=[];let i=0;
   SUIT_COLORS.forEach(col=>{
     let o=0;
-    const objs=OBJ_ORDER.slice();objs.splice(objs.indexOf(NAMED_BY[col].type),1);
-    for(let n=1;n<=13;n++){
+    const objs=OBJ_ORDER.slice();
+    for(let n=1;n<=12;n++){
       const ex=EXTRAS[col][n];
       if(ex&&ex[0]==='p'){d.push({id:'c'+(i++),...PERSOS.find(x=>x.pid===ex.slice(2)),kind:'num',color:col,value:n,type:'perso'});continue;}
       if(ex&&ex[0]==='s'){d.push({id:'c'+(i++),...SPECIALS.find(x=>x.sid===ex.slice(2)),kind:'special',color:col,value:n});continue;}
@@ -655,6 +651,7 @@ function makeDeck(){
       d.push({id:'c'+(i++),kind:'num',color:col,value:n,type,named:false,name:null});
     }
   });
+  for(let v=1;v<=4;v++) d.push({id:'c'+(i++),kind:'num',color:'A',value:v,type:'totem',named:false,name:null});
   return d;
 }
 function pts(c){
@@ -782,7 +779,9 @@ function resolveTrick(trick,doublage){
   if(winner===undefined){
     let best=null;
     const led=ledColorOf(trick);
-    for(const c of cards) if(c.alive&&c.card.color===led&&(!best||(doublage?c.val<best.val:c.val>best.val))) best=c;
+    const trump=cards.some(c=>c.alive&&c.card.color==='A');
+    const col=trump?'A':led;
+    for(const c of cards) if(c.alive&&c.card.color===col&&(!best||(doublage?c.val<best.val:c.val>best.val))) best=c;
     if(best){winner=best.p;winEntry=best;}else{winner=trick[0].p;winEntry=null;}
   }
   return {winner,winEntry,cards,effects,lines,dfLeader};
@@ -824,7 +823,7 @@ function evalMove(p,c,remaining){
     if(remaining===0) pWin=1;
     else{
       const we=res.winEntry;
-      if(we) pWin=Math.max(0.05,Math.min(0.85,0.08+we.val*0.08-remaining*0.12));
+      if(we) pWin=Math.max(0.05,Math.min(0.9,0.08+(we.card.color==='A'?11+we.val:we.val)*0.07-remaining*0.12));
       else pWin=0.4;
     }
   }
@@ -1106,7 +1105,6 @@ function collectionBonus(piles){
   const has=f=>piles.some(f);let b=0;
   if(has(pidIs('copine'))){if(has(pidIs('rodrigo')))b+=3;if(has(c=>isS(c)&&c.named))b+=2;}
   if(has(pidIs('joanne'))&&has(pidIs('peintre')))b+=2;
-  if(has(pidIs('secretaire'))&&has(pidIs('fanto')))b+=2;
   if(has(pidIs('peintre')))b+=piles.filter(isT).length;
   return b;
 }
@@ -1282,8 +1280,8 @@ function renderLog(){
 /* =========================================================
    GALERIE + RÈGLES
    ========================================================= */
-const GTABS=[['all','Toutes'],['J','Jaune'],['G','Vert'],['B','Bleu'],['R','Rouge'],['perso','Personnages'],['special','Spéciales']];
-const LINKS_OF={fanto:'3, 4, 5, 6, 7',john:'2, 4, 5',flic:'2, 3',darlene:'8, 9, 11',agent:'11',rodrigo:'1, 7, 8',peintre:'10',copine:'1, 4, 6',joanne:'9, 10',secretaire:'aucun'};
+const GTABS=[['all','Toutes'],['J','Jaune'],['G','Vert'],['B','Bleu'],['R','Rouge'],['A','Totems magiques'],['perso','Personnages'],['special','Spéciales']];
+const LINKS_OF={fanto:'3, 4, 5, 6, 7',john:'2, 4, 5',flic:'2, 3',darlene:'8, 9, 11',agent:'11',rodrigo:'1, 7, 8',copine:'1, 4, 6',joanne:'9, 10'};
 function cardCaption(c){
   const sc=SCENES.filter(s=>s.reqs.some(r=>r.f(c))).map(s=>s.name);
   const scTxt=sc.length?`<br><i>Scène${sc.length>1?'s':''} : ${sc.join(', ')}</i>`:'';
@@ -1294,7 +1292,7 @@ function cardCaption(c){
 }
 function galleryBody(tab){
   const deck=makeDeck();
-  const groups=[['J','Jaune',c=>c.color==='J'],['G','Vert',c=>c.color==='G'],['B','Bleu',c=>c.color==='B'],['R','Rouge',c=>c.color==='R'],['perso','Personnages',c=>isPerso(c)],['special','Cartes spéciales',c=>c.kind==='special']].filter(g=>tab==='all'?['J','G','B','R'].includes(g[0]):g[0]===tab);
+  const groups=[['J','Jaune',c=>c.color==='J'],['G','Vert',c=>c.color==='G'],['B','Bleu',c=>c.color==='B'],['R','Rouge',c=>c.color==='R'],['A','Totems magiques (atouts)',c=>c.color==='A'],['perso','Personnages',c=>isPerso(c)],['special','Cartes spéciales',c=>c.kind==='special']].filter(g=>tab==='all'?['J','G','B','R','A'].includes(g[0]):g[0]===tab);
   return groups.filter(g=>tab==='all'||g[0]===tab).map(g=>{
     const cs=deck.filter(g[2]);
     return `<div class="gsec">${g[1]} (${cs.length})</div>`+cs.map(c=>`<div class="gcell">${cardHTML(c)}<div class="cap">${cardCaption(c)}</div></div>`).join('');
@@ -1313,20 +1311,21 @@ function rulesHTML(){
   return `<div class="rules"><h2>Les règles</h2>
   <p>Jeu de plis et de collection, à obligation de fournir. Les cartes que tu remportes sont posées <b>face visible devant toi</b> : c'est ta collection.</p>
   <h3>Le paquet : 52 cartes</h3><ul>
-  <li><b>4 couleurs</b> (jaune, vert, bleu, rouge) de 13 cartes numérotées 1 à 13. Il n'y a pas d'atout.</li>
-  <li>Chaque couleur contient 1 carte spéciale (le 1), 1 carte nommée (le 2), 3 Personnages (entre 5 et 9) et 8 autres objets.</li>
+  <li><b>4 couleurs</b> (jaune, vert, bleu, rouge) de 12 cartes numérotées 1 à 12.</li>
+  <li>Chaque couleur contient 1 carte spéciale (le 1), 1 carte nommée (le 2), 2 Personnages (entre 5 et 8) et 8 objets : 2 Tableaux, 2 Voitures, 2 Statuettes, 2 Catamarans.</li>
+  <li><b>4 Totems magiques</b> numérotés 1 à 4 : ce sont les <b>atouts</b>.</li>
   <li><b>4 cartes nommées</b>, le 2 de chaque couleur : le tableau flamand (jaune), la statuette préférée de Rodrigo (vert), le catamaran géant (bleu), la 6-roues de Marrakech (rouge).</li></ul>
   <h3>Un pli</h3><ul>
-  <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas, défausse la carte de ton choix.</li>
-  <li>La plus forte carte de la couleur demandée gagne le pli.</li>
+  <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas, joue la carte de ton choix : un Totem magique pour couper, ou une défausse.</li>
+  <li>Le plus fort Totem magique gagne le pli. Sans Totem, c'est la plus forte carte de la couleur demandée.</li>
   <li>Les Personnages et les cartes spéciales déclenchent leur effet quand on les pose.</li>
   <li>Chaque manche : 5 cartes coupées au Montage (scénario troué), puis 3 cartes passées au voisin.</li></ul>
   <h3>Les cartes spéciales</h3><ul>${makeDeck().filter(c=>c.kind==='special').map(c=>`<li><b>${c.name}</b> : ${c.effect}</li>`).join('')}</ul>
   <h3>Points de victoire</h3><ul>
-  <li>Tableaux +3 · Voitures +2 · Statuettes +1 · Totems magiques 0 · Catamarans −1.</li>
+  <li>Tableaux +3 · Voitures +2 · Statuettes +1 · Catamarans −1 · Totems magiques 0.</li>
   <li>Cartes nommées (le 2 de chaque couleur) : 0 PV. Elles ne paient que dans leur Scène culte.</li>
   <li>Camion ! −5, Fantofesse −5, Darlène −3, John −1, autres Personnages et spéciales 0.</li>
-  <li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (+2 avec le Peintre), la secrétaire (+2 avec Fantofesse).</li></ul>
+  <li>Bonus de collection : le Peintre (+1 par Tableau), la copine (+3 avec Rodrigo, +2 avec la statuette préférée), Joanne (+2 avec le Peintre).</li></ul>
   <h3>Scènes cultes</h3>
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : <b>+${SCENE_PTS}</b> pour son auteur, et tout le monde compte quand même sa collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
