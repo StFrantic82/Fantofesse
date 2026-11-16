@@ -299,6 +299,9 @@ body::before{opacity:.18}
 .pv.neg path{fill:#2a1a24;stroke:#2a1a24;stroke-width:1.4;stroke-linejoin:round}.pv.neg span{color:#fff}
 .pv.inl{position:relative;display:inline-flex;vertical-align:middle;top:auto;right:auto;width:26px;height:26px;margin:-4px 2px}
 .pv.inl span{font-size:12px;margin-top:2px}
+.pv.tiny{position:relative;display:inline-flex;vertical-align:middle;top:auto;right:auto;width:19px;height:19px;margin:-3px 0}
+.pv.tiny span{font-size:10px;margin-top:2px}
+.mini .pv.tiny{width:14px;height:14px;top:auto;right:auto}.mini .pv.tiny span{font-size:8px;margin-top:1px}
 .pv.inl.neg path{stroke:#fff3b0}
 .scene .sright{float:right;display:flex;align-items:center;gap:4px;margin-left:6px}
 .scene .sright .pr{float:none}
@@ -409,16 +412,16 @@ const EXTRAS={
 };
 // Cartes nommées uniques (couleur + valeur)
 const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
-const NAMED_FX={'Le catamaran géant':'Collection : +1 PV par Catamaran.'};
+const NAMED_FX={'Le catamaran géant':'Collection : {*1} par Catamaran.'};
 const PTS={tab:[3,0],voit:[0,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
-  {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Collection : +1 PV par Tableau.',quote:'Je suis moi.'},
+  {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Collection : {*1} par Tableau.',quote:'Je suis moi.'},
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Pli perdu : pioche 1 carte au gagnant, rends-en 1.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Vous voulez voir mon totem magique ?'},
-  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Collection : +1 PV par Statuette.',quote:'Mes statuettes ! Mon restaurant !'},
-  {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Collection : +3 avec Rodrigo, +2 avec la préférée.',quote:'…'},
+  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Collection : {*1} par Statuette.',quote:'Mes statuettes ! Mon restaurant !'},
+  {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'{*3} avec Rodrigo, {*2} avec la préférée.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Prends 1 carte dans une collection adverse.',quote:'Mon pays est plat. C’est ce que j’aime.'},
 ];
 const SPECIALS=[
@@ -692,6 +695,7 @@ function artFor(c){
   return ART.V(c.named?6:1);
 }
 const titleHTML=t=>`<div class="ribbon" style="--fs:${Math.min(12.5,168/t.length).toFixed(2)}"><span>${t}</span></div>`;
+const fx=t=>String(t).replace(/\{\*(-?\d+)\}/g,(m,n)=>ptsBadge(+n).replace('class="pv ','class="pv tiny '));
 const starInl=p=>ptsBadge(p).replace('class="pv ','class="pv inl ');
 const ptsBadge=p=>p?`<div class="pv ${p>0?'pos':'neg'}"><svg viewBox="0 0 24 24"><path d="M12 1.5 L14.9 8.6 L22.5 9.1 L16.7 14 L18.6 21.6 L12 17.5 L5.4 21.6 L7.3 14 L1.5 9.1 L9.1 8.6Z"/></svg><span>${Math.abs(p)}</span></div>`:'';
 function cardHTML(c,o={}){
@@ -712,13 +716,13 @@ function cardHTML(c,o={}){
     return `<div class="card perso${mini}${extra}"${data} ${st}>
       <div class="medal">${c.value}</div>${ptsBadge(pts(c))}
       <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
-      ${titleHTML(c.short||c.name)}<div class="pw">${c.power}</div></div>`;
+      ${titleHTML(c.short||c.name)}<div class="pw">${fx(c.power)}</div></div>`;
   }
   const p=pts(c);
   return `<div class="card num${c.named?' named':''}${mini}${extra}"${data} ${st}>
     <div class="medal">${c.value}</div>${ptsBadge(p)}
     <div class="art">${artFor(c)}</div><div class="sicons">${sceneIconsFor(c)}</div>
-    ${titleHTML(c.named?({'Le tableau flamand':'Tableau flamand','La statuette préférée de Rodrigo':'Statuette préférée','Le catamaran géant':'Catamaran géant','La 6-roues de Marrakech':'6-roues de Marrakech'}[c.name]||c.name):TYPES[c.type].name)}${c.named&&NAMED_FX[c.name]?`<div class="pw">${NAMED_FX[c.name]}</div>`:''}</div>`;
+    ${titleHTML(c.named?({'Le tableau flamand':'Tableau flamand','La statuette préférée de Rodrigo':'Statuette préférée','Le catamaran géant':'Catamaran géant','La 6-roues de Marrakech':'6-roues de Marrakech'}[c.name]||c.name):TYPES[c.type].name)}${c.named&&NAMED_FX[c.name]?`<div class="pw">${fx(NAMED_FX[c.name])}</div>`:''}</div>`;
 }
 function sortHand(h){
   const key=c=>[0,COLOR_ORDER.indexOf(c.color)*20+c.value];
@@ -1355,7 +1359,7 @@ function cardCaption(c){
   const sc=SCENES.filter(s=>s.reqs.some(r=>r.f(c))).map(s=>s.name);
   const scTxt=sc.length?`<br><i>Scène${sc.length>1?'s':''} : ${sc.join(', ')}</i>`:'';
   if(c.kind==='special') return `<b>${c.name}</b><br>${c.effect}${scTxt}`;
-  if(isPerso(c)) return `<b>${c.name}</b>${pts(c)?` ${starInl(pts(c))}`:''}<br>${c.power}${scTxt}`;
+  if(isPerso(c)) return `<b>${c.name}</b>${pts(c)?` ${starInl(pts(c))}`:''}<br>${fx(c.power)}${scTxt}`;
   const p=pts(c);
   return `<b>${c.named?c.name:TYPES[c.type].name}</b>${p?` ${starInl(p)}`:''}${scTxt}`;
 }
@@ -1401,7 +1405,7 @@ function rulesHTML(){
   <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>${starInl(s.pts)}</td></tr>`).join('')}</table>
-  <h3>Les Personnages</h3><p>Les effets s'appliquent dès que le Personnage est posé, sauf les effets « Collection » qui comptent en fin de manche. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b>${pts(p)?` (${pts(p)} PV)`:''} : ${p.power}</li>`).join('')}</ul></div>
+  <h3>Les Personnages</h3><p>Les effets s'appliquent dès que le Personnage est posé, sauf les effets « Collection » qui comptent en fin de manche. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b>${pts(p)?` ${starInl(pts(p))}`:''} : ${fx(p.power)}</li>`).join('')}</ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
 function showRules(){openModal(rulesHTML());$('#closeR').onclick=closeModal;}
