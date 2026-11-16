@@ -416,11 +416,11 @@ const NAMED_FX={'Le tableau flamand':'Collection : {*1} par Tableau.','La statue
 const PTS={tab:[3,0],voit:[-1,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
-  {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Collection : {*1} par Tableau.',quote:'Je suis moi.'},
+  {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Aucun effet.',quote:'Je suis moi.'},
   {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Pli perdu : pioche 1 carte au gagnant, rends-en 1.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
   {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Vous voulez voir mon totem magique ?'},
-  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Collection : {*1} par Statuette.',quote:'Mes statuettes ! Mon restaurant !'},
+  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet.',quote:'Mes statuettes ! Mon restaurant !'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'{*3} avec Rodrigo, {*2} avec la préférée.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Prends 1 carte dans une collection adverse.',quote:'Mon pays est plat. C’est ce que j’aime.'},
 ];
@@ -1167,8 +1167,6 @@ async function winPower(we,won){
 function collectionBonus(piles){
   const has=f=>piles.some(f);let b=0;
   if(has(pidIs('copine'))){if(has(pidIs('rodrigo')))b+=3;if(has(c=>isS(c)&&c.named))b+=2;}
-  if(has(pidIs('rodrigo')))b+=piles.filter(isS).length;
-  if(has(pidIs('peintre')))b+=piles.filter(isT).length;
   for(const t of ['tab','stat','cat','voit']) if(has(c=>c.type===t&&c.named)) b+=piles.filter(c=>c.type===t).length;
   return b;
 }
@@ -1399,7 +1397,7 @@ function rulesHTML(){
   <li>Tableaux +3 · Statuettes +1 · Totems magiques 0 · Voitures −1 · Catamarans −3.</li>
   <li>Objets spéciaux : 0 PV, mais chacun rapporte 1 PV par carte de sa famille dans ta collection (lui compris).</li>
   <li>Camion ! −3, Personnages et autres spéciales 0.</li>
-  <li>Bonus de collection : Micasso (+1 par Tableau), Rodrigo (+1 par Statuette), chaque objet spécial (+1 par carte de sa famille), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
+  <li>Bonus de collection : chaque objet spécial (+1 par carte de sa famille), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
   <h3>Scènes cultes</h3>
   <p>Il y a 8 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
   <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
