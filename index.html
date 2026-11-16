@@ -315,7 +315,7 @@ body::before{opacity:.18}
     <div>
       <h1 class="gold-text">Fantofesse&nbsp;!</h1>
       <div class="sub">le jeu de plis à en (bip)er</div>
-      <p>Un jeu de plis à 4 couleurs et 4 Totems magiques en atout. Expose ta collection devant toi et réunis une <b style="color:var(--gold2)">Scène culte</b> pour couper la manche net et empocher de 10 à 25 PV. Plus une carte est forte, moins elle rapporte.</p>
+      <p>Tableaux flamands, voitures à 6 roues, statuettes et catamarans : remporte des plis pour garnir ta collection, exposée devant toi. Réunis les bons Personnages et objets pour jouer une <b style="color:var(--gold2)">Scène culte</b> : la manche s'arrête net et tu empoches de 10 à 25 PV. Et gare aux 4 Totems magiques, qui coupent tout !</p>
       <div class="lbl">Nombre de joueurs</div>
       <div class="opts" id="optN">
         <button data-n="3">3 joueurs</button><button data-n="4" class="on">4 joueurs</button><button data-n="5">5 joueurs</button>
@@ -761,7 +761,11 @@ function ledColorOf(trick){
 }
 function legalCards(p,trick=G.trick){
   const hand=P(p).hand;
-  if(trick.length===0) return hand;
+  if(trick.length===0){
+    if(G.trumpBroken) return hand;
+    const plain=hand.filter(c=>c.color!=='A');
+    return plain.length?plain:hand;
+  }
   const led=ledColorOf(trick);
   if(!led) return hand;
   const follow=hand.filter(c=>c.color===led);
@@ -882,7 +886,7 @@ async function runGame(){
 }
 async function playManche(){
   const deck=shuffle(makeDeck());
-  G.montage=[];G.pending=[];G.trick=[];G.sceneWin=null;
+  G.montage=[];G.pending=[];G.trick=[];G.sceneWin=null;G.trumpBroken=false;
   const per=({3:16,4:12,5:10})[G.n]||Math.floor(deck.length/G.n);
   for(const p of G.players){p.hand=deck.splice(0,per);p.piles=[];p.bonus=0;p.blind=false;p.blindNext=false;sortHand(p.hand);}
   G.montage.push(...deck);
@@ -937,7 +941,7 @@ async function playTrick(){
     pl.blind=false;
     pl.hand=pl.hand.filter(c=>c!==card);
     const entry={p,card};
-    G.trick.push(entry);
+    G.trick.push(entry);if(entry.card.color==='A')G.trumpBroken=true;
     log(`${pl.name} joue ${cardName(card)}.`,pl.human?'me':'');
     if(!pl.human&&isPerso(card)&&Math.random()<0.45) log(`${card.name} : « ${card.quote} »`);
     else if(!pl.human&&Math.random()<0.18) log(`${pl.name} : ${CHATTER[rand(CHATTER.length)]}`);
@@ -1315,6 +1319,7 @@ function rulesHTML(){
   <li><b>4 Totems magiques</b> numérotés 1 à 4 : ce sont les <b>atouts</b>.</li>
   <li><b>4 cartes nommées</b>, le 2 de chaque couleur : le tableau flamand (jaune), la statuette préférée de Rodrigo (vert), le catamaran géant (bleu), la 6-roues de Marrakech (rouge).</li></ul>
   <h3>Un pli</h3><ul>
+  <li>On ne peut pas entamer avec un Totem magique tant qu'aucun Totem n'a été joué dans la manche (sauf si tu n'as plus que ça).</li>
   <li>Tu dois fournir la couleur demandée. Si tu ne l'as pas, tu dois couper avec un Totem magique. Sans Totem, défausse la carte de ton choix.</li>
   <li>Le plus fort Totem magique gagne le pli. Sans Totem, c'est la plus forte carte de la couleur demandée.</li>
   <li>Les Personnages et les cartes spéciales déclenchent leur effet quand on les pose.</li>
