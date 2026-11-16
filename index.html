@@ -405,10 +405,10 @@ const NAMED_POS={J:4,G:4,B:4,R:4};
 const OBJ_ORDER=['tab','tab','stat','stat','voit','voit','cat','cat'];
 // Personnages (p:) et spéciales (s:) placés dans chaque couleur ; les objets remplissent les autres numéros, dans l'ordre
 const EXTRAS={
-  J:{1:'s:transition',7:'p:darlene',8:'p:fanto'},
-  G:{1:'s:babounia',7:'p:copine',8:'p:rodrigo'},
-  B:{1:'s:camion',7:'p:agent',8:'p:peintre'},
-  R:{1:'s:doublage',7:'p:joanne',8:'p:flic'}
+  J:{1:'s:transition',5:'p:darlene',8:'p:fanto'},
+  G:{1:'s:babounia',5:'p:copine',8:'p:rodrigo'},
+  B:{1:'s:camion',5:'p:agent',8:'p:peintre'},
+  R:{1:'s:doublage',5:'p:joanne',8:'p:flic'}
 };
 // Cartes nommées uniques (couleur + valeur)
 const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
@@ -1385,7 +1385,7 @@ function rulesHTML(){
   <p>Jeu de plis et de collection, à obligation de fournir. Les cartes que tu remportes sont posées <b>face visible devant toi</b> : c'est ta collection.</p>
   <h3>Le paquet : 52 cartes</h3><ul>
   <li><b>4 couleurs</b> (jaune, vert, bleu, rouge) de 12 cartes numérotées 1 à 12.</li>
-  <li>Chaque couleur : 1 carte spéciale (1), 2 Tableaux (2-3), 1 objet spécial (4), 2 Statuettes (5-6), 2 Personnages (7-8), 2 Voitures (9-10), 2 Catamarans (11-12).</li>
+  <li>Chaque couleur : 1 carte spéciale (1), 2 Tableaux (2-3), 1 objet spécial (4), 1 Personnage (5), 2 Statuettes (6-7), 1 Personnage (8), 2 Voitures (9-10), 2 Catamarans (11-12).</li>
   <li><b>4 Totems magiques</b> numérotés 1 à 4 : ce sont les <b>atouts</b>.</li>
 </ul>
   <h3>Un pli</h3><ul>
