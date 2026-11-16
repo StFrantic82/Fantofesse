@@ -402,7 +402,7 @@ const TYPES={
 // Disposition des 10 cartes d'une couleur (nombres 1 à 10), décalée de 2 crans par couleur
 // Même disposition dans chaque couleur : 1-2 Tableaux, 3-4 Voitures, 5-6 Statuettes, 7-8 Totems, 9-10 Catamarans
 const NAMED_POS={J:3,G:2,B:2,R:3};
-const OBJ_ORDER=['tab','tab','voit','voit','stat','stat','cat','cat'];
+const OBJ_ORDER=['tab','tab','stat','stat','voit','voit','cat','cat'];
 // Personnages (p:) et spéciales (s:) placés dans chaque couleur ; les objets remplissent les autres numéros, dans l'ordre
 const EXTRAS={
   J:{1:'s:transition',2:'p:darlene',8:'p:fanto'},
@@ -413,7 +413,7 @@ const EXTRAS={
 // Cartes nommées uniques (couleur + valeur)
 const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
 const NAMED_FX={'Le tableau flamand':'Collection : {*1} par Tableau.','La statuette préférée de Rodrigo':'Collection : {*1} par Statuette.','Le catamaran géant':'Collection : {*1} par Catamaran.','La 6-roues de Marrakech':'Collection : {*1} par Voiture.'};
-const PTS={tab:[3,0],voit:[0,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
+const PTS={tab:[3,0],voit:[-1,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
   {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Collection : {*1} par Tableau.',quote:'Je suis moi.'},
@@ -1396,7 +1396,7 @@ function rulesHTML(){
   <li>Chaque manche : 16 cartes chacun à 3 joueurs, 12 à 4, 10 à 5 ; le reste part face cachée au Montage (scénario troué). Puis 3 cartes passées au voisin.</li></ul>
   <h3>Les cartes spéciales</h3><ul>${makeDeck().filter(c=>c.kind==='special').map(c=>`<li><b>${c.name}</b> : ${c.effect}</li>`).join('')}</ul>
   <h3>Points de victoire</h3><ul>
-  <li>Tableaux +3 · Statuettes +1 · Voitures 0 · Totems magiques 0 · Catamarans −3.</li>
+  <li>Tableaux +3 · Statuettes +1 · Totems magiques 0 · Voitures −1 · Catamarans −3.</li>
   <li>Cartes nommées : 0 PV, mais chacune rapporte 1 PV par carte de sa famille dans ta collection (elle comprise).</li>
   <li>Camion ! −3, Personnages et autres spéciales 0.</li>
   <li>Bonus de collection : Micasso (+1 par Tableau), Rodrigo (+1 par Statuette), chaque carte nommée (+1 par carte de sa famille), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
