@@ -110,6 +110,7 @@ header button{font-size:13px;padding:6px 12px}
 .scene .req{font-size:14px;color:var(--muted);line-height:1.15}
 .scene .req{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
 .scene .rq{font-size:12.5px;line-height:1.2;padding:1px 7px;border-radius:999px;background:#fff;color:#3a1028;font-weight:600}
+.scene .rq b.rqn{font-family:'Abril Fatface',serif;font-style:normal;font-weight:400;font-size:12.5px;color:inherit}
 .scene .rqou{font-size:12px;color:var(--muted);align-self:center}
 .scene .rq.uniq{background:var(--rc);color:var(--rt,#fff)}
 .scene .rq.ok{background:linear-gradient(180deg,#ffd36b,#f08a1c);color:#3a1028;box-shadow:0 0 0 1.5px #fff3bf}
@@ -1316,8 +1317,8 @@ function renderScenes(){
       const lbl=`${ok?'✓ ':''}${r.l}${n>1&&h&&!ok?` (${h}/${n})`:''}`;
       if(m.length>1&&m.every(c=>c.pid)){
         return m.map(c=>{const C=COLORS[c.color];const got=P(0).piles.some(x=>x.pid===c.pid);
-          return `<span class="rq uniq${got?' ok':''}" style="--rc:${C.bg2};--rt:${c.color==='J'?'#3a2400':'#fff'}">${got?'✓ ':''}${c.short}</span>`;}).join('<span class="rqou">ou</span>');}
-      if(m.length===1){const C=COLORS[cols[0]];return `<span class="rq uniq${ok?' ok':''}" style="--rc:${C.bg2};--rt:${cols[0]==='J'?'#3a2400':'#fff'}">${lbl}</span>`;}
+          return `<span class="rq uniq${got?' ok':''}" style="--rc:${C.bg2};--rt:${c.color==='J'?'#3a2400':'#fff'}">${got?'✓ ':''}<b class="rqn">${c.value}</b> ${c.short}</span>`;}).join('<span class="rqou">ou</span>');}
+      if(m.length===1){const C=COLORS[cols[0]];return `<span class="rq uniq${ok?' ok':''}" style="--rc:${C.bg2};--rt:${cols[0]==='J'?'#3a2400':'#fff'}">${ok?'✓ ':''}<b class="rqn">${m[0].value}</b> ${r.l}</span>`;}
       return `<span class="rq${ok?' ok':''}">${lbl}</span>`;}).join(' ');
     return `<div class="scene${s.need-s.have===1?' hot':''}"><span class="pr">${s.have}/${s.need}</span><span class="sicon inl">${SICON[sc.sid]}</span><b>${sc.name}</b> <small>+${sc.pts}</small><div class="req">${reqs}</div></div>`;
   }).join('');
