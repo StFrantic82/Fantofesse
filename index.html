@@ -1276,10 +1276,10 @@ const LINKS_OF={fanto:'3, 4, 5, 6, 7',john:'2, 4, 5',flic:'2, 3',darlene:'8, 9, 
 function cardCaption(c){
   const sc=SCENES.filter(s=>s.reqs.some(r=>r.f(c))).map(s=>s.name);
   const scTxt=sc.length?`<br><i>Scène${sc.length>1?'s':''} : ${sc.join(', ')}</i>`:'';
-  if(c.kind==='special') return `<b>${c.name}</b> · ${COLORS[c.color].name} ${c.value}<br>${c.effect}${scTxt}`;
-  if(isPerso(c)) return `<b>${c.name}</b> · ${COLORS[c.color].name} ${c.value}${pts(c)?` · ${pts(c)} PV`:''}<br>${c.power}${scTxt}`;
+  if(c.kind==='special') return `<b>${c.name}</b><br>${c.effect}${scTxt}`;
+  if(isPerso(c)) return `<b>${c.name}</b>${pts(c)?` · ${pts(c)} PV`:''}<br>${c.power}${scTxt}`;
   const p=pts(c);
-  return `<b>${c.named?c.name:TYPES[c.type].name}</b> · ${COLORS[c.color].name} ${c.value}${p?`<br>${p>0?'+':''}${p} point${Math.abs(p)>1?'s':''}`:''}${scTxt}`;
+  return `<b>${c.named?c.name:TYPES[c.type].name}</b>${p?`<br>${p>0?'+':''}${p} point${Math.abs(p)>1?'s':''}`:''}${scTxt}`;
 }
 function galleryBody(tab){
   const deck=makeDeck();
@@ -1310,7 +1310,7 @@ function rulesHTML(){
   <li>La plus forte carte de la couleur demandée gagne le pli.</li>
   <li>Les Personnages et les cartes spéciales déclenchent leur effet quand on les pose.</li>
   <li>Chaque manche : 5 cartes coupées au Montage (scénario troué), puis 3 cartes passées au voisin.</li></ul>
-  <h3>Les cartes spéciales</h3><ul>${makeDeck().filter(c=>c.kind==='special').map(c=>`<li><b>${c.name}</b> (${COLORS[c.color].name} ${c.value}) : ${c.effect}</li>`).join('')}</ul>
+  <h3>Les cartes spéciales</h3><ul>${makeDeck().filter(c=>c.kind==='special').map(c=>`<li><b>${c.name}</b> : ${c.effect}</li>`).join('')}</ul>
   <h3>Points de victoire</h3><ul>
   <li>Tableaux +3 · Voitures +2 · Statuettes +1 · Totems magiques 0 · Catamarans −1.</li>
   <li>Cartes nommées : tableau flamand +1, 6-roues de Marrakech 0, statuette préférée −1, catamaran géant −3. Elles ne paient que dans leur Scène culte.</li>
@@ -1320,7 +1320,7 @@ function rulesHTML(){
   <p>Dès qu'une collection réunit une Scène, la manche s'arrête : <b>+${SCENE_PTS}</b> pour son auteur, et tout le monde compte quand même sa collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td></tr>`).join('')}</table>
-  <h3>Les Personnages</h3><p>Les effets « Joué » se déclenchent dès que le Personnage est posé ; les effets « Dans ta collection » comptent en fin de manche. Une icône en haut à droite d'une carte indique les Scènes cultes auxquelles elle sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b> (${COLORS[p.color].name} ${p.value}) : ${p.power}</li>`).join('')}</ul></div>
+  <h3>Les Personnages</h3><p>Les effets s'appliquent dès que le Personnage est posé, sauf les effets « Collection » qui comptent en fin de manche. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b>${pts(p)?` (${pts(p)} PV)`:''} : ${p.power}</li>`).join('')}</ul></div>
   <div class="btns"><button class="pink" id="closeR">Fermer</button></div>`;
 }
 function showRules(){openModal(rulesHTML());$('#closeR').onclick=closeModal;}
