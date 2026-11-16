@@ -405,10 +405,10 @@ const NAMED_POS={J:4,G:4,B:4,R:4};
 const OBJ_ORDER=['tab','tab','stat','stat','voit','voit','cat','cat'];
 // Personnages (p:) et spéciales (s:) placés dans chaque couleur ; les objets remplissent les autres numéros, dans l'ordre
 const EXTRAS={
-  J:{1:'s:transition',5:'p:rodrigo',8:'p:fanto'},
+  J:{1:'s:transition',5:'p:joanne',8:'p:fanto'},
   G:{1:'s:babounia',5:'p:darlene',8:'p:flic'},
   B:{1:'s:camion',5:'p:agent',8:'p:copine'},
-  R:{1:'s:doublage',5:'p:peintre',8:'p:joanne'}
+  R:{1:'s:doublage',5:'p:peintre',8:'p:rodrigo'}
 };
 // Cartes nommées uniques (couleur + valeur)
 const NAMED_BY={J:{type:'tab',name:'Le tableau flamand'},G:{type:'stat',name:'La statuette préférée de Rodrigo'},B:{type:'cat',name:'Le catamaran géant'},R:{type:'voit',name:'La 6-roues de Marrakech'}}; // la 2e carte de ce type dans la couleur
@@ -416,11 +416,11 @@ const NAMED_FX={'Le tableau flamand':'Collection : {*1} par Tableau.','La statue
 const PTS={tab:[3,0],voit:[-1,0],stat:[1,0],totem:[0,0],cat:[-3,0]}; // [normal, nommée]
 const PERSOS=[
   {pid:'fanto',value:10,name:'Fantofesse',short:'Fantofesse',power:'Aucun effet.',quote:'Sur ce tableau, je vois ma famille. Et le soleil.'},
-  {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Je suis moi.'},
-  {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Aucun effet.',quote:'Camion.'},
+  {pid:'peintre',value:4,name:'Micasso',short:'Micasso',power:'Prends 1 carte dans la main d’un joueur, rends-en 1.',quote:'Je suis moi.'},
+  {pid:'joanne',value:8,name:'Joanne',short:'Joanne',power:'Prends 1 carte dans une collection adverse.',quote:'Camion.'},
   {pid:'darlene',value:7,name:'Darlène',short:'Darlène',power:'Échange en secret 1 carte de ta main avec le Montage.',quote:'Vous auriez une place pour une voiture à six roues ?'},
-  {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Pioche 1 carte chez un joueur, rends-lui-en 1.',quote:'Vous voulez voir mon totem magique ?'},
-  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Prends 1 carte dans une collection adverse.',quote:'Mes statuettes ! Mon restaurant !'},
+  {pid:'agent',value:6,name:'L’agent du port',short:'L’agent du port',power:'Défausse 1 de tes Catamarans (si possible).',quote:'Vous voulez voir mon totem magique ?'},
+  {pid:'rodrigo',value:5,name:'Rodrigo',short:'Rodrigo',power:'Aucun effet.',quote:'Mes statuettes ! Mon restaurant !'},
   {pid:'copine',value:3,name:'La copine de Rodrigo',short:'La copine',power:'Aucun effet.',quote:'…'},
   {pid:'flic',value:2,name:'Le flic infiltré',short:'Le flic infiltré',power:'Aucun effet.',quote:'Mon pays est plat. C’est ce que j’aime.'},
 ];
@@ -884,10 +884,10 @@ function evalMove(p,c,remaining){
 }
 function powerValue(p,c){
   const me=P(p);
-  if(c.pid==='rodrigo'){let m=0;for(const q of G.players) if(q.i!==p) for(const x of q.piles){const loss=progressValue(q.piles)-progressValue(q.piles.filter(y=>y!==x));m=Math.max(m,pts(x)+sceneGain(p,[x])+loss*0.7);}return m;}
+  if(c.pid==='joanne'){let m=0;for(const q of G.players) if(q.i!==p) for(const x of q.piles){const loss=progressValue(q.piles)-progressValue(q.piles.filter(y=>y!==x));m=Math.max(m,pts(x)+sceneGain(p,[x])+loss*0.7);}return m;}
   if(c.pid==='darlene') return 0.8;
-  if(c.pid==='agent') return 0.6;
-  if(c.pid==='peintre'){const w=me.piles.filter(isC).sort((a,b)=>pts(a)-pts(b))[0];return w?-pts(w):0;}
+  if(c.pid==='peintre') return 0.6;
+  if(c.pid==='agent'){const w=me.piles.filter(isC).sort((a,b)=>pts(a)-pts(b))[0];return w?-pts(w):0;}
   return 0;
 }
 function aiMove(p,cards){
@@ -1038,15 +1038,15 @@ async function dubChoose(p,cards){
 }
 async function joanneSwap(p,w){
   const pl=P(p),wh=P(w).hand;
-  if(!wh.length){log(`L’agent du port : ${nm(w)} n'a plus de cartes en main.`,'link');return;}
+  if(!wh.length){log(`Micasso : ${nm(w)} n'a plus de cartes en main.`,'link');return;}
   const take=wh.splice(rand(wh.length),1)[0];pl.hand.push(take);sortHand(pl.hand);
-  if(pl.human) toast(`L’agent du port : tu pioches ${cardName(take)}`);
+  if(pl.human) toast(`Micasso : tu pioches ${cardName(take)}`);
   let give;
-  if(pl.human) give=await pickCard('L’agent du port',`Tu as pioché ${cardName(take)}. Quelle carte donnes-tu à ${nm(w)} ?`,pl.hand,false);
+  if(pl.human) give=await pickCard('Micasso',`Tu as pioché ${cardName(take)}. Quelle carte donnes-tu à ${nm(w)} ?`,pl.hand,false);
   else give=pl.hand.slice().sort((a,b)=>(keepScore(a)+sceneGain(p,[a])*0.3)-(keepScore(b)+sceneGain(p,[b])*0.3))[0];
   pl.hand.splice(pl.hand.indexOf(give),1);wh.push(give);sortHand(wh);
-  if(P(w).human) toast(`L’agent du port : tu reçois ${cardName(give)}`);
-  log(`L’agent du port : ${nm(p)} pioche une carte dans la main de ${nm(w)} et lui en rend une.`,'link');
+  if(P(w).human) toast(`Micasso : tu reçois ${cardName(give)}`);
+  log(`Micasso : ${nm(p)} pioche une carte dans la main de ${nm(w)} et lui en rend une.`,'link');
   render();
 }
 async function finishTrick(){
@@ -1135,41 +1135,41 @@ async function sceneCheck(first){
 async function winPower(we,won){
   const p=we.p,pl=P(p),pid=we.card.pid;
   if(pid==='darlene') await babouniaSwap(p,'Darlène');
-  if(pid==='agent'){
+  if(pid==='peintre'){
     const opts=G.players.filter(q=>q.i!==p&&q.hand.length);
-    if(!opts.length) log('L’agent du port : personne n\'a de cartes en main.','link');
+    if(!opts.length) log('Micasso : personne n\'a de cartes en main.','link');
     else{
-      const w=pl.human?await ask('L’agent du port','Dans la main de qui pioches-tu une carte ?',opts.map(q=>({label:`${q.name} (${q.hand.length} cartes)`,value:q.i}))):opts.slice().sort((a,b)=>b.hand.length-a.hand.length)[0].i;
+      const w=pl.human?await ask('Micasso','Dans la main de qui pioches-tu une carte ?',opts.map(q=>({label:`${q.name} (${q.hand.length} cartes)`,value:q.i}))):opts.slice().sort((a,b)=>b.hand.length-a.hand.length)[0].i;
       await joanneSwap(p,w);
     }
   }
-  if(pid==='rodrigo'){
+  if(pid==='joanne'){
     const opts=[];
     for(const q of G.players) if(q.i!==p) for(const c of q.piles) opts.push({q:q.i,c});
-    if(!opts.length){log('Rodrigo fouille les collections… elles sont vides.','link');}
+    if(!opts.length){log('Joanne fouille les collections… elles sont vides.','link');}
     else{
       let pick;
       if(pl.human){
-        const target=await ask('Rodrigo','Dans la collection de qui veux-tu te servir ?',G.players.filter(q=>q.i!==p&&q.piles.length).map(q=>({label:`${q.name} (${q.piles.length} cartes)`,value:q.i})));
-        const c=await pickCard('Rodrigo',`Quelle carte prends-tu dans la collection de ${nm(target)} ?`,P(target).piles,false);
+        const target=await ask('Joanne','Dans la collection de qui veux-tu te servir ?',G.players.filter(q=>q.i!==p&&q.piles.length).map(q=>({label:`${q.name} (${q.piles.length} cartes)`,value:q.i})));
+        const c=await pickCard('Joanne',`Quelle carte prends-tu dans la collection de ${nm(target)} ?`,P(target).piles,false);
         pick={q:target,c};
       }else{
         let bu=-1e9;
         for(const o of opts){const u=pts(o.c)+sceneGain(p,[o.c])+(progressValue(P(o.q).piles)-progressValue(P(o.q).piles.filter(x=>x!==o.c)))*0.7;if(u>bu){bu=u;pick=o;}}
       }
       P(pick.q).piles.splice(P(pick.q).piles.indexOf(pick.c),1);pl.piles.push(pick.c);
-      log(`Rodrigo : ${pl.name} confisque ${cardName(pick.c)} dans la collection de ${nm(pick.q)}.`,'link');
+      log(`Joanne : ${pl.name} confisque ${cardName(pick.c)} dans la collection de ${nm(pick.q)}.`,'link');
     }
   }
-  if(pid==='peintre'){
+  if(pid==='agent'){
     const cs=pl.piles.filter(isC);
-    if(!cs.length) log('Micasso n’a aucun catamaran à défausser.','link');
+    if(!cs.length) log('L’agent du port n’a aucun catamaran à défausser.','link');
     else{
       let c;
-      if(pl.human) c=cs.length===1?cs[0]:await pickCard('Micasso','Défausse 1 Catamaran de ta collection au Montage :',cs,false);
+      if(pl.human) c=cs.length===1?cs[0]:await pickCard('Contrôle du port','Défausse 1 Catamaran de ta collection au Montage :',cs,false);
       else{const keepGiant=sceneState(pl.piles,SCENES.find(x=>x.sid==='demenagement')).have>=1;c=cs.filter(x=>!(keepGiant&&x.named)).sort((x,y)=>pts(x)-pts(y))[0]||cs[0];}
       pl.piles.splice(pl.piles.indexOf(c),1);G.montage.push(c);
-      log(`Micasso : ${pl.name} défausse ${cardName(c)} de sa collection.`,'link');
+      log(`Contrôle du port : ${pl.name} défausse ${cardName(c)} de sa collection.`,'link');
     }
   }
   render();
