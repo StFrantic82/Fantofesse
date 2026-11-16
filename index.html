@@ -435,17 +435,20 @@ const isT=isType('tab'),isS=isType('stat'),isC=isType('cat'),isV=isType('voit'),
 const pidIs=p=>c=>c.pid===p;
 const SCENES=[
   {sid:'parking',pts:16,name:'Enfin garée !',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'la 6-roues de Marrakech',f:c=>isV(c)&&c.named},{l:'2 autres Voitures',f:c=>isV(c)&&!c.named,n:2}]},
-  {sid:'casse',pts:25,name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le tableau flamand',f:c=>isT(c)&&c.named},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
-  {sid:'totem',pts:12,name:'Tu veux voir le totem magique ?',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
-  {sid:'affaire',pts:18,name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
-  {sid:'diner',pts:10,name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
-  {sid:'demenagement',pts:19,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'2 Catamarans',f:isC,n:2}]},
-  {sid:'portrait',pts:14,name:'Sur ce tableau, je vois ma famille',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Micasso',f:pidIs('peintre')},{l:'2 Tableaux',f:c=>isT(c)&&!c.named,n:2}]},
-  {sid:'soeurs',pts:24,name:'2 sœurs à La Babounia',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'Joanne',f:pidIs('joanne')},{l:'Hôtel La Babounia',f:c=>c.sid==='babounia'}]}
+  {sid:'casse',pts:20,name:'Le casse du siècle',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Rodrigo',f:pidIs('rodrigo')},{l:'la statuette préférée',f:c=>isS(c)&&c.named}]},
+  {sid:'totem',pts:10,name:'Tu veux voir le totem magique ?',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
+  {sid:'affaire',pts:14,name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
+  {sid:'diner',pts:16,name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
+  {sid:'demenagement',pts:15,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'2 Catamarans',f:isC,n:2}]},
+  {sid:'portrait',pts:15,name:'Sur ce tableau, je vois ma famille',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'Micasso',f:pidIs('peintre')},{l:'2 Tableaux',f:c=>isT(c)&&!c.named,n:2}]},
+  {sid:'soeurs',pts:25,name:'2 sœurs à La Babounia',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'Joanne',f:pidIs('joanne')},{l:'Hôtel La Babounia',f:c=>c.sid==='babounia'}]},
+  {sid:'vernissage',pts:21,name:'Le vernissage',reqs:[{l:'Micasso',f:pidIs('peintre')},{l:'la copine',f:pidIs('copine')},{l:'le tableau flamand',f:c=>isT(c)&&c.named}]},
+  {sid:'controle',pts:24,name:'Contrôle au port',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'le flic infiltré',f:pidIs('flic')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]}
 ];
 const SCENE_PTS=15;
 const GOAL=69;
 const SICON={
+  controle:'<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#1c7fe0"/><path d="M10 4 V15 M7 6.5 H13 M5 11 Q5.5 15.5 10 15.5 Q14.5 15.5 15 11" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="4" r="1.4" fill="none" stroke="#fff" stroke-width="1.2"/></svg>',
   portrait:'<svg viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="17" height="17" rx="1.5" fill="#e0a514" stroke="#7a4b12" stroke-width="1"/><rect x="4" y="4" width="12" height="12" fill="#fff6e4"/><circle cx="10" cy="9" r="3" fill="#f1c7a0"/><path d="M4.5 16 Q10 10.5 15.5 16Z" fill="#6a1fb0"/><path d="M7 7.5 Q10 4.5 13 7.5" fill="none" stroke="#3a2400" stroke-width="1.4"/></svg>',
   soeurs:'<svg viewBox="0 0 20 20"><path d="M7 17 C1 12 1 7 4 5.5 C5.8 4.6 7 5.6 7 7 C7 5.6 8.2 4.6 10 5.5 C13 7 13 12 7 17Z" fill="#f5b60f" stroke="#7a4b12" stroke-width=".7"/><path d="M13 17 C7 12 7 7 10 5.5 C11.8 4.6 13 5.6 13 7 C13 5.6 14.2 4.6 16 5.5 C19 7 19 12 13 17Z" fill="#de1f29" stroke="#7f0a10" stroke-width=".7"/></svg>',
   parking:'<svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="4" fill="#1c7fe0"/><text x="10" y="15" font-family="Abril Fatface,serif" font-size="13" text-anchor="middle" fill="#fff">P</text></svg>',
@@ -1404,7 +1407,7 @@ function rulesHTML(){
   <li>Camion ! −3, Personnages et autres spéciales 0.</li>
   <li>Bonus de collection : chaque objet spécial (+1 par carte de sa famille).</li></ul>
   <h3>Scènes cultes</h3>
-  <p>Il y a 8 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
+  <p>Il y a 10 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
   <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>${starInl(s.pts)}</td></tr>`).join('')}</table>
