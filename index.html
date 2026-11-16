@@ -111,6 +111,7 @@ header button{font-size:13px;padding:6px 12px}
 .scene .req{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
 .scene .rq{font-size:12.5px;line-height:1.2;padding:1px 7px;border-radius:999px;background:#fff;color:#3a1028;font-weight:600}
 .scene .rq b.rqn{font-family:'Abril Fatface',serif;font-style:normal;font-weight:400;font-size:12.5px;color:inherit}
+.sreserve{font-size:13px;color:var(--muted);font-style:italic;text-align:center;padding:2px 0 4px}
 .scene .rqou{font-size:12px;color:var(--muted);align-self:center}
 .scene .rq.uniq{background:var(--rc);color:var(--rt,#fff)}
 .scene .rq.ok{background:linear-gradient(180deg,#ffd36b,#f08a1c);color:#3a1028;box-shadow:0 0 0 1.5px #fff3bf}
@@ -428,11 +429,15 @@ const SCENES=[
   {sid:'totem',pts:10,name:'Tu veux voir le totem magique ?',reqs:[{l:'l’agent du port',f:pidIs('agent')},{l:'1 Totem magique',f:isTotem},{l:'Darlène ou Joanne',f:c=>c.pid==='darlene'||c.pid==='joanne'}]},
   {sid:'affaire',pts:15,name:'Affaire classée',reqs:[{l:'le flic infiltré',f:pidIs('flic')},{l:'Fantofesse',f:pidIs('fanto')},{l:'1 Catamaran',f:c=>isC(c)&&!c.named}]},
   {sid:'diner',pts:15,name:'Dîner chez Rodrigo',reqs:[{l:'Rodrigo',f:pidIs('rodrigo')},{l:'sa copine',f:pidIs('copine')},{l:'3 Statuettes',f:isS,n:3}]},
-  {sid:'demenagement',pts:25,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]}
+  {sid:'demenagement',pts:25,name:'Le grand déménagement',reqs:[{l:'Camion !',f:c=>c.sid==='camion'},{l:'Joanne',f:pidIs('joanne')},{l:'le catamaran géant',f:c=>isC(c)&&c.named}]},
+  {sid:'portrait',pts:20,name:'Sur ce tableau, je vois ma famille',reqs:[{l:'Fantofesse',f:pidIs('fanto')},{l:'le peintre',f:pidIs('peintre')},{l:'2 Tableaux',f:c=>isT(c)&&!c.named,n:2}]},
+  {sid:'soeurs',pts:25,name:'2 sœurs à La Babounia',reqs:[{l:'Darlène',f:pidIs('darlene')},{l:'Joanne',f:pidIs('joanne')},{l:'Hôtel La Babounia',f:c=>c.sid==='babounia'}]}
 ];
 const SCENE_PTS=15;
 const GOAL=69;
 const SICON={
+  portrait:'<svg viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="17" height="17" rx="1.5" fill="#e0a514" stroke="#7a4b12" stroke-width="1"/><rect x="4" y="4" width="12" height="12" fill="#fff6e4"/><circle cx="10" cy="9" r="3" fill="#f1c7a0"/><path d="M4.5 16 Q10 10.5 15.5 16Z" fill="#6a1fb0"/><path d="M7 7.5 Q10 4.5 13 7.5" fill="none" stroke="#3a2400" stroke-width="1.4"/></svg>',
+  soeurs:'<svg viewBox="0 0 20 20"><path d="M7 17 C1 12 1 7 4 5.5 C5.8 4.6 7 5.6 7 7 C7 5.6 8.2 4.6 10 5.5 C13 7 13 12 7 17Z" fill="#f5b60f" stroke="#7a4b12" stroke-width=".7"/><path d="M13 17 C7 12 7 7 10 5.5 C11.8 4.6 13 5.6 13 7 C13 5.6 14.2 4.6 16 5.5 C19 7 19 12 13 17Z" fill="#de1f29" stroke="#7f0a10" stroke-width=".7"/></svg>',
   parking:'<svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="4" fill="#1c7fe0"/><text x="10" y="15" font-family="Abril Fatface,serif" font-size="13" text-anchor="middle" fill="#fff">P</text></svg>',
   casse:'<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#f2c14e"/><path d="M3 8 Q10 5 17 8 L16 12 Q13 13 11 11 L9 11 Q7 13 4 12Z" fill="#111"/><circle cx="6.5" cy="9.5" r="1.3" fill="#f2c14e"/><circle cx="13.5" cy="9.5" r="1.3" fill="#f2c14e"/></svg>',
   vernissage:'<svg viewBox="0 0 20 20"><path d="M10 2 C16 2 19 6 18 10 C17 13 14 12 13 14 C12 17 9 18 6 17 C2 15 1 11 2 8 C3 4 6 2 10 2Z" fill="#c9a26b"/><circle cx="7" cy="7" r="1.8" fill="#ff2d7a"/><circle cx="11" cy="5.5" r="1.8" fill="#1c7fe0"/><circle cx="14.5" cy="8" r="1.8" fill="#2fb574"/><circle cx="6" cy="12" r="1.8" fill="#f2c14e"/></svg>',
@@ -722,13 +727,13 @@ function sceneState(cards,sc){
 }
 function progressValue(cards){
   let v=0;
-  for(const sc of SCENES){const s=sceneState(cards,sc);const w=sc.pts/15;v+=s.done?40*w:Math.pow(s.have/s.need,2)*6*w;}
+  for(const sc of G.active){const s=sceneState(cards,sc);const w=sc.pts/15;v+=s.done?40*w:Math.pow(s.have/s.need,2)*6*w;}
   return v;
 }
 function checkScenes(first){
   for(let k=0;k<G.n;k++){
     const p=(first+k)%G.n;
-    for(const sc of SCENES) if(sceneState(P(p).piles,sc).done) return {p,sc};
+    for(const sc of G.active) if(sceneState(P(p).piles,sc).done) return {p,sc};
   }
   return null;
 }
@@ -752,6 +757,7 @@ function newGame(n){
   G={run:RUN,n,manche:0,nManches:n,dealer:rand(n),
     players:Array.from({length:n},(_,i)=>({i,name:i===0?'Toi':AI_NAMES[i-1],human:i===0&&!AUTOTEST,hand:[],piles:[],total:0,bonus:0,blind:false,blindNext:false,react:350+rand(700)})),
     montage:[],pending:[],trick:[],order:[],flags:{},leader:0,turn:null,ui:{mode:'idle'},logs:[],sceneWin:null};
+  G.sceneDeck=shuffle(SCENES.slice());G.active=G.sceneDeck.splice(0,n);
 }
 const P=i=>G.players[i];
 const nm=i=>P(i).name;
@@ -1100,6 +1106,8 @@ async function sceneCheck(first){
   if(!w) return;
   G.sceneWin=w;
   log(`★ SCÈNE CULTE : « ${w.sc.name} » pour ${nm(w.p)} ! Clap de fin, la manche s'arrête.`,'scn');
+  G.active.splice(G.active.indexOf(w.sc),1);
+  if(G.sceneDeck.length){const nx=G.sceneDeck.shift();G.active.push(nx);log(`Nouvelle Scène culte révélée : « ${nx.name} ».`,'scn');}
   render();
   if(!AUTOTEST) await new Promise(res=>{
     openModal(`<div class="clap"><h2>Clap de fin !</h2><div class="scn gold-text">« ${w.sc.name} »</div>
@@ -1263,7 +1271,7 @@ function collHTML(p){
   return out.join('');
 }
 function threatOf(p){
-  for(const sc of SCENES){const s=sceneState(P(p).piles,sc);if(!s.done&&s.need-s.have===1&&s.have>=2) return sc;}
+  for(const sc of G.active){const s=sceneState(P(p).piles,sc);if(!s.done&&s.need-s.have===1&&s.have>=2) return sc;}
   return null;
 }
 function render(){
@@ -1309,7 +1317,7 @@ function render(){
 }
 function renderScenes(){
   const el=$('#scenes');if(!el||!G)return;
-  el.innerHTML=SCENES.map(sc=>{
+  el.innerHTML=G.active.map(sc=>{
     const s=sceneState(P(0).piles,sc);
     const reqs=sc.reqs.map(r=>{const n=r.n||1;const h=Math.min(n,P(0).piles.filter(r.f).length);const ok=h>=n;
       const m=(window.__DECK0||(window.__DECK0=makeDeck())).filter(r.f);
@@ -1321,7 +1329,7 @@ function renderScenes(){
       if(m.length===1){const C=COLORS[cols[0]];return `<span class="rq uniq${ok?' ok':''}" style="--rc:${C.bg2};--rt:${cols[0]==='J'?'#3a2400':'#fff'}">${ok?'✓ ':''}<b class="rqn">${m[0].value}</b> ${r.l}</span>`;}
       return `<span class="rq${ok?' ok':''}">${lbl}</span>`;}).join(' ');
     return `<div class="scene${s.need-s.have===1?' hot':''}"><span class="pr">${s.have}/${s.need}</span><span class="sicon inl">${SICON[sc.sid]}</span><b>${sc.name}</b> <small>+${sc.pts}</small><div class="req">${reqs}</div></div>`;
-  }).join('');
+  }).join('')+`<div class="sreserve">${G.sceneDeck.length?`${G.sceneDeck.length} Scène${G.sceneDeck.length>1?'s':''} en réserve`:'Plus de Scène en réserve'}</div>`;
 }
 function renderLog(){
   const el=$('#loglines');if(!el)return;
@@ -1380,7 +1388,8 @@ function rulesHTML(){
   <li>Camion ! −3, Personnages et autres spéciales 0.</li>
   <li>Bonus de collection : le Peintre (+1 par Tableau), Rodrigo (+1 par Statuette), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
   <h3>Scènes cultes</h3>
-  <p>Dès qu'une collection réunit une Scène, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
+  <p>Il y a 8 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
+  <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
   <h3>Fin de partie</h3><p>On joue autant de manches qu'il y a de joueurs. Le plus haut total gagne.</p>
   <table><tr><th>Scène culte</th><th>Il faut réunir</th><th>PV</th></tr>${SCENES.map(s=>`<tr><td><span class="sicon inl">${SICON[s.sid]}</span> ${s.name}</td><td>${s.reqs.map(r=>r.l).join(' + ')}</td><td>+${s.pts}</td></tr>`).join('')}</table>
   <h3>Les Personnages</h3><p>Les effets s'appliquent dès que le Personnage est posé, sauf les effets « Collection » qui comptent en fin de manche. Les icônes en bas de l'illustration indiquent les Scènes cultes auxquelles une carte sert.</p><ul>${makeDeck().filter(isPerso).map(p=>`<li><b>${p.name}</b>${pts(p)?` (${pts(p)} PV)`:''} : ${p.power}</li>`).join('')}</ul></div>
