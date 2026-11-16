@@ -229,6 +229,9 @@ label.fld{display:block;margin:8px 0}label.fld input{display:block;margin-top:4p
 .bar{height:10px;background:rgba(0,0,0,.5);border-radius:999px;overflow:hidden;margin:12px 0}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,#ff2d7a,#f2c14e);width:100%;transition:width linear}
 .big{font-size:24px!important;padding:14px 30px!important}
+.mainbtns{display:flex;gap:10px;flex-wrap:wrap}
+.mainbtns .big{font-size:19px!important;padding:12px 18px!important;flex:1 1 0;min-width:210px;white-space:nowrap}
+.mainbtns .alt{background:linear-gradient(180deg,#b56cff,#6a1fb0)!important;box-shadow:0 0 0 2px #3a0a6e,0 4px 0 #2a0650,0 6px 14px rgba(0,0,0,.4)!important}
 .clap{text-align:center}
 .clap .scn{font-family:'Pacifico',cursive;font-size:40px;margin:6px 0}
 #toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:linear-gradient(180deg,#fff3bf,#f2c14e);color:#3a1028;font-family:'Playfair Display',serif;font-weight:700;font-style:italic;font-size:17px;padding:10px 20px;border-radius:999px;z-index:45;display:none;box-shadow:0 0 0 2px #a8741a,0 6px 16px rgba(0,0,0,.4);max-width:90vw;text-align:center}
@@ -351,8 +354,8 @@ body::before{opacity:.18}
         <button data-n="3">3 joueurs</button><button data-n="4" class="on">4 joueurs</button><button data-n="5">5 joueurs</button>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-top:14px">
-        <button class="big pink" id="start">♥ Moteur… Action !</button>
-        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="ghost" id="onlineT">Jouer en ligne</button><button class="ghost" id="tutoT">Tutoriel</button><button class="ghost" id="rulesT">Les règles</button><button class="ghost" id="cardsT">Les cartes</button></div>
+        <div class="mainbtns"><button class="big pink" id="start">♥ Moteur… Action !</button><button class="big pink alt" id="onlineT">♥ Partie fine en ligne</button></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="ghost" id="tutoT">Tutoriel</button><button class="ghost" id="rulesT">Les règles</button><button class="ghost" id="cardsT">Les cartes</button></div>
       </div>
       <p class="credit">D'après <i>2 sœurs à en (bip)er</i> (Art of Love, 1998) et <a href="https://www.nanarland.com/chroniques/aux-portes-du-nanar/erotique/2-soeurs-a-en-bip-er.html" target="_blank" rel="noopener">sa chronique sur Nanarland</a>. Cartes dessinées pour ce jeu.</p>
     </div>
@@ -1697,7 +1700,7 @@ function netLeave(silent){
 function onlineMenu(){
   const saved=(()=>{try{return localStorage.getItem('ff-name')||'';}catch(e){return '';}})();
   const m=location.search.match(/[?&]salle=([A-Za-z0-9]+)/);
-  openModal(`<h2>Jouer en ligne</h2>
+  openModal(`<h2>Partie fine en ligne</h2>
     <p>Chacun joue depuis chez soi avec le lien de la salle. Les places libres sont tenues par des IA.</p>
     <label class="fld">Ton nom <input id="oname" maxlength="16" value="${esc(saved)}" placeholder="Ton prénom"></label>
     ${m?`<p>Tu as été invité dans la salle <b class="hl">${esc(m[1].toUpperCase())}</b>.</p>`:''}
