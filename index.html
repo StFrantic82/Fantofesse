@@ -1385,7 +1385,7 @@ function rulesHTML(){
   <p>Jeu de plis et de collection, à obligation de fournir. Les cartes que tu remportes sont posées <b>face visible devant toi</b> : c'est ta collection.</p>
   <h3>Le paquet : 52 cartes</h3><ul>
   <li><b>4 couleurs</b> (jaune, vert, bleu, rouge) de 12 cartes numérotées 1 à 12.</li>
-  <li>Chaque couleur : 1 carte spéciale (1), 2 Tableaux (2-3), 1 carte nommée (4), 2 Statuettes (5-6), 1 Personnage (7), 2 Voitures (8-9), 1 Personnage (10), 2 Catamarans (11-12).</li>
+  <li>Chaque couleur : 1 carte spéciale (1), 2 Tableaux (2-3), 1 objet spécial (4), 2 Statuettes (5-6), 1 Personnage (7), 2 Voitures (8-9), 1 Personnage (10), 2 Catamarans (11-12).</li>
   <li><b>4 Totems magiques</b> numérotés 1 à 4 : ce sont les <b>atouts</b>.</li>
 </ul>
   <h3>Un pli</h3><ul>
@@ -1397,9 +1397,9 @@ function rulesHTML(){
   <h3>Les cartes spéciales</h3><ul>${makeDeck().filter(c=>c.kind==='special').map(c=>`<li><b>${c.name}</b> : ${c.effect}</li>`).join('')}</ul>
   <h3>Points de victoire</h3><ul>
   <li>Tableaux +3 · Statuettes +1 · Totems magiques 0 · Voitures −1 · Catamarans −3.</li>
-  <li>Cartes nommées : 0 PV, mais chacune rapporte 1 PV par carte de sa famille dans ta collection (elle comprise).</li>
+  <li>Objets spéciaux : 0 PV, mais chacun rapporte 1 PV par carte de sa famille dans ta collection (lui compris).</li>
   <li>Camion ! −3, Personnages et autres spéciales 0.</li>
-  <li>Bonus de collection : Micasso (+1 par Tableau), Rodrigo (+1 par Statuette), chaque carte nommée (+1 par carte de sa famille), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
+  <li>Bonus de collection : Micasso (+1 par Tableau), Rodrigo (+1 par Statuette), chaque objet spécial (+1 par carte de sa famille), la copine (+3 avec Rodrigo, +2 avec la statuette préférée).</li></ul>
   <h3>Scènes cultes</h3>
   <p>Il y a 8 Scènes cultes. En début de partie, on en mélange les tuiles et on en révèle autant qu'il y a de joueurs ; seules les Scènes révélées comptent. Une Scène réalisée est retirée et remplacée par une nouvelle, tant qu'il en reste.</p>
   <p>Dès qu'une collection réunit une Scène révélée, la manche s'arrête : son auteur marque les PV de la Scène (de 10 à 25 selon sa difficulté) <b>à la place</b> de sa collection. Les autres comptent leur collection.</p>
