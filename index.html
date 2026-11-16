@@ -1061,7 +1061,8 @@ async function finishTrick(){
   if(F.transition!==null){
     G.montage.push(...G.trick.filter(e=>e!==cam).map(e=>e.card));
     log('Transition : personne ne gagne, toutes les cartes du pli sont défaussées.','win');
-    G.leader=F.transition;
+    G.leader=G.trick[0].p;
+    log(`${nm(G.leader)} avait entamé : il relance le pli suivant.`);
     if(F.john) log('Sixième sens : rien à voir, circulez.');
     await sleep(900);G.trick=[];render();
     await sceneCheck(F.camionTaker??G.leader);
